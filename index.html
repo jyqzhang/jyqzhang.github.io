@@ -659,9 +659,11 @@ document.querySelectorAll('[data-back]').forEach(el=>{
 
 /* ───── Physics labels ───── */
 (function(){
-  const { Engine, Render, Runner, World, Bodies, Body, Mouse, MouseConstraint } = Matter;
   const container = document.getElementById('physics');
+  if(!container || typeof Matter === 'undefined') return; // nothing to animate, bail
+  const { Engine, Render, Runner, World, Bodies, Body, Mouse, MouseConstraint } = Matter;
   const labels = Array.from(container.querySelectorAll('.label'));
+  if(!labels.length) return;
 
   let w = container.clientWidth;
   let h = container.clientHeight;
