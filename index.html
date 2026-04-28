@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>julia ./portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<style>
+  :root{
+    --bg:#f5efdf;
+    --bg-2:#ece4cd;
+    --ink:#1a1815;
+    --muted:#7a7466;
+    --soft:#3a362e;
+    --accent:#f6c83a;
+    --accent-soft:#fce8a3;
+    --card:#fdfaef;
+    --line:#1a1815;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{
+    background:var(--bg);
+    background-image:radial-gradient(circle, rgba(26,24,21,.18) 1px, transparent 1.2px);
+    background-size:18px 18px;
+    color:var(--ink);
+  }
+  body{
+    font-family:'JetBrains Mono',ui-monospace,monospace;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .serif{font-family:'Fraunces',serif;}
+  a{color:inherit;text-decoration:none;}
+
+  /* ───── NAV ───── */
+  nav{
+    position:sticky;top:0;z-index:60;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:14px 32px;
+    background:rgba(245,239,223,.78);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid rgba(26,24,21,.12);
+  }
+  .logo{font-size:18px;display:flex;align-items:baseline;gap:6px;}
+  .logo .serif{font-weight:500;font-size:22px;}
+  .logo .path{color:var(--muted);font-size:14px;}
+  nav ul{display:flex;gap:4px;list-style:none;}
+  nav li{
+    padding:8px 16px;display:flex;align-items:center;gap:8px;
+    font-size:14px;cursor:pointer;border-radius:999px;
+    transition:background .15s;
+  }
+  nav li:hover{background:rgba(26,24,21,.06);}
+  nav li.active{background:var(--ink);color:var(--bg);}
+  nav li.active:hover{background:var(--ink);}
+  nav li .ic{color:var(--accent);font-size:13px;}
+
+  /* ───── PAGES ───── */
+  .page{padding:0 0 100px;}
+  .page.hidden{display:none;}
+
+  /* ───── HERO LABELS ───── */
+  .labels-hero{
+    position:relative;
+    height:78vh;min-height:580px;
+    border-bottom:1px solid rgba(26,24,21,.12);
+    overflow:hidden;
+  }
+  #physics{position:absolute;inset:0;}
+  .label{
+    position:absolute;visibility:hidden;
+    user-select:none;cursor:grab;
+    font-family:'JetBrains Mono',monospace;
+    font-size:17px;font-weight:500;
+    letter-spacing:.04em;text-transform:uppercase;
+    padding:13px 24px;
+    border:1.5px solid var(--ink);
+    border-radius:999px;
+    background:var(--card);
+    white-space:nowrap;line-height:1;
+    box-shadow:3px 3px 0 var(--ink);
+  }
+  .label.yellow{background:var(--accent);}
+  .label.dot{
+    width:62px;height:62px;padding:0;
+    background:var(--ink);color:var(--bg);
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;font-family:'Fraunces',serif;
+    box-shadow:3px 3px 0 var(--ink);
+  }
+  .label.tiny-dot{
+    width:14px;height:14px;background:var(--ink);
+    box-shadow:2px 2px 0 var(--ink);
+  }
+  .label.tiny-ring{
+    width:18px;height:18px;background:transparent;
+    box-shadow:2px 2px 0 var(--ink);
+  }
+  .hero-name{
+    position:absolute;left:0;right:0;bottom:-1.4vw;
+    text-align:center;
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:clamp(46px,12.8vw,210px);
+    letter-spacing:-0.045em;line-height:.85;
+    pointer-events:none;
+    white-space:nowrap;
+    color:var(--ink);
+  }
+  .hero-foot{
+    position:absolute;bottom:14px;font-size:11px;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+    pointer-events:none;
+  }
+  .hero-foot.l{left:32px;}
+  .hero-foot.r{right:32px;}
+
+  /* ───── HOME INTRO ───── */
+  .home-intro{
+    display:grid;grid-template-columns:1.35fr 1fr;gap:72px;
+    padding:96px 80px 0;
+    max-width:1320px;margin:0 auto;align-items:start;
+  }
+  .eyebrow{
+    font-size:13px;letter-spacing:.12em;
+    color:var(--accent);font-weight:500;
+    margin-bottom:22px;
+  }
+  .hi{
+    font-family:'Fraunces',serif;
+    font-size:clamp(54px,8.8vw,128px);
+    font-weight:500;line-height:.95;letter-spacing:-.02em;
+  }
+  .hi em{font-style:italic;font-weight:400;}
+  .hi .hl{
+    position:relative;display:inline-block;padding:0 4px;
+  }
+  .hi .hl::before{
+    content:"";position:absolute;
+    left:-2%;right:-2%;top:18%;bottom:14%;
+    background:var(--accent);z-index:-1;
+    border-radius:2px;
+  }
+  .hi .endot{color:var(--accent);}
+  .intro-body{
+    font-size:18px;line-height:1.6;color:var(--soft);
+    margin-top:30px;max-width:580px;
+  }
+  .intro-body em{font-style:italic;color:var(--ink);}
+  .terminal{
+    margin-top:22px;font-size:15px;color:var(--muted);
+  }
+  .terminal .cursor{
+    display:inline-block;width:7px;height:16px;
+    background:var(--ink);vertical-align:-3px;
+    margin-left:1px;animation:blink 1.05s steps(1) infinite;
+  }
+  @keyframes blink{50%{opacity:0;}}
+
+  /* currently card */
+  .currently{
+    background:var(--card);
+    border:1.5px solid var(--ink);
+    border-radius:18px;
+    padding:28px 28px 26px;
+    box-shadow:6px 6px 0 var(--ink);
+    margin-top:24px;
+  }
+  .cur-eyebrow{
+    display:flex;align-items:center;gap:8px;
+    font-size:13px;color:var(--muted);letter-spacing:.05em;
+    margin-bottom:14px;
+  }
+  .cur-eyebrow::before{
+    content:"";width:8px;height:8px;background:var(--accent);border-radius:50%;
+  }
+  .currently h4{
+    font-family:'Fraunces',serif;
+    font-size:24px;font-weight:500;line-height:1.25;letter-spacing:-.01em;
+    margin-bottom:24px;
+  }
+  .cur-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:18px 24px;
+  }
+  .cur-grid .lbl{font-size:11px;color:var(--muted);letter-spacing:.06em;margin-bottom:4px;}
+  .cur-grid .val{font-size:14px;}
+  .cur-grid .val a{border-bottom:1px solid var(--accent);}
+
+  /* ───── ROOMS ───── */
+  .rooms-wrap{padding:96px 80px 0;max-width:1320px;margin:0 auto;}
+  .rooms-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-bottom:28px;
+  }
+  .rooms-head h2{
+    font-family:'Fraunces',serif;font-size:42px;font-weight:500;letter-spacing:-.01em;
+  }
+  .rooms-head .pick{font-size:14px;color:var(--muted);}
+  .rooms{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:22px;
+  }
+  .room-card{
+    background:var(--card);
+    border:1.5px solid var(--ink);
+    border-radius:14px;
+    padding:22px 22px 20px;
+    box-shadow:5px 5px 0 var(--ink);
+    cursor:pointer;
+    transition:transform .18s, box-shadow .18s;
+  }
+  .room-card:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink);}
+  .room-card .top{
+    display:flex;justify-content:space-between;align-items:flex-start;
+    font-size:11px;color:var(--muted);letter-spacing:.12em;
+    margin-bottom:42px;
+  }
+  .room-card .icon{color:var(--accent);font-size:20px;line-height:1;}
+  .room-card h3{
+    font-family:'Fraunces',serif;font-size:34px;font-weight:500;
+    margin-bottom:12px;letter-spacing:-.01em;
+  }
+  .room-card p{
+    font-size:13.5px;line-height:1.55;color:var(--soft);
+    margin-bottom:22px;min-height:62px;
+  }
+  .tags{display:flex;gap:8px;flex-wrap:wrap;}
+  .tag{
+    background:rgba(26,24,21,.07);
+    padding:5px 12px;border-radius:999px;
+    font-size:11.5px;
+  }
+
+  /* principles */
+  .principles{
+    margin-top:42px;
+    border:1.5px dashed rgba(26,24,21,.32);
+    border-radius:14px;padding:28px 30px;
+    display:grid;grid-template-columns:repeat(3,1fr);gap:32px;
+  }
+  .principle{display:flex;align-items:center;gap:18px;}
+  .principle .num{color:var(--accent);font-size:13px;font-weight:600;}
+  .principle .text{font-family:'Fraunces',serif;font-size:20px;}
+
+  .cta-row{text-align:center;margin-top:60px;}
+  .cta-row a{
+    font-family:'Fraunces',serif;font-size:22px;
+    border-bottom:2px solid var(--accent);padding-bottom:3px;
+  }
+
+  /* ───── WORK PAGE ───── */
+  .work-head{padding:80px 80px 32px;max-width:1320px;margin:0 auto;}
+  .crumb{font-size:13px;color:var(--accent);margin-bottom:22px;letter-spacing:.04em;}
+  .crumb::before{content:"> ";}
+  .work-head h1{
+    font-family:'Fraunces',serif;font-size:clamp(72px,11vw,144px);
+    font-weight:500;line-height:.9;letter-spacing:-.025em;
+    margin-bottom:24px;
+    display:inline-block;position:relative;
+    padding:0 6px;
+  }
+  .work-head h1::before{
+    content:"";position:absolute;
+    left:-2%;right:35%;top:18%;bottom:14%;
+    background:var(--accent);z-index:-1;border-radius:2px;
+  }
+  .work-head h1 .pd{color:var(--ink);}
+  .work-head p{
+    font-size:14.5px;line-height:1.65;color:var(--soft);max-width:640px;
+  }
+  .work-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:22px;
+    padding:32px 80px 0;max-width:1320px;margin:0 auto;
+  }
+  .work-card{
+    background:var(--card);
+    border:1.5px solid var(--ink);border-radius:14px;
+    box-shadow:5px 5px 0 var(--ink);
+    padding:22px;cursor:pointer;
+    transition:transform .18s,box-shadow .18s;
+    position:relative;
+  }
+  .work-card:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink);}
+  .work-card .top{
+    display:flex;justify-content:space-between;align-items:flex-start;
+    font-size:11px;color:var(--muted);letter-spacing:.12em;
+    margin-bottom:48px;
+  }
+  .work-card .icon{color:var(--accent);font-size:18px;line-height:1;}
+  .work-card h3{
+    font-family:'Fraunces',serif;font-size:30px;font-weight:500;
+    margin-bottom:12px;letter-spacing:-.01em;
+  }
+  .work-card p{
+    font-size:13px;line-height:1.55;color:var(--soft);
+    margin-bottom:18px;min-height:78px;
+  }
+
+  /* ───── GALLERY (project detail) ───── */
+  .gallery{padding:48px 80px;max-width:1320px;margin:0 auto;}
+  .back{font-size:12.5px;color:var(--muted);display:inline-flex;align-items:center;gap:6px;margin-bottom:24px;cursor:pointer;}
+  .back:hover{color:var(--ink);}
+  .gallery h2{
+    font-family:'Fraunces',serif;font-size:34px;font-weight:500;
+    margin-bottom:22px;letter-spacing:-.01em;
+  }
+  .gallery-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:22px;
+  }
+  .gallery-item{
+    background:var(--card);
+    border:1.5px solid var(--ink);border-radius:14px;
+    box-shadow:4px 4px 0 var(--ink);
+    overflow:hidden;
+  }
+  .gallery-item .thumb{
+    background:var(--bg-2);height:200px;
+    position:relative;border-bottom:1.5px solid var(--ink);
+  }
+  .gallery-item .thumb svg{position:absolute;inset:24px;width:calc(100% - 48px);height:calc(100% - 48px);}
+  .gallery-item .thumb .cap{
+    position:absolute;left:14px;bottom:10px;
+    font-size:11px;color:var(--muted);letter-spacing:.05em;
+  }
+  .gallery-item .info{padding:16px 18px;font-size:13px;line-height:1.5;color:var(--soft);min-height:84px;}
+
+  .pdf-section{margin-top:64px;}
+  .pdf-section h2{
+    font-family:'Fraunces',serif;font-size:34px;font-weight:500;
+    margin-bottom:14px;letter-spacing:-.01em;
+  }
+  .pdf-section p{font-size:13.5px;line-height:1.65;color:var(--soft);margin-bottom:24px;max-width:640px;}
+  .pdf-embed{
+    background:#888;
+    border:1.5px solid var(--ink);
+    border-radius:12px;
+    box-shadow:5px 5px 0 var(--ink);
+    height:580px;padding:36px;
+    display:flex;align-items:flex-start;justify-content:center;
+    position:relative;
+  }
+  .pdf-doc{
+    background:#fff;width:90%;height:100%;
+    padding:60px;font-family:'Inter',sans-serif;
+  }
+  .pdf-doc h3{font-size:38px;font-weight:400;color:#000;margin-bottom:24px;line-height:1.15;}
+  .pdf-doc p{font-size:38px;font-weight:400;color:#000;line-height:1.15;}
+
+  /* ───── ART / PLAYGROUND ───── */
+  .art-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:18px;
+    padding:32px 80px 0;max-width:1320px;margin:0 auto;
+  }
+  .art-tile{
+    background:var(--card);
+    border:1.5px solid var(--ink);border-radius:12px;
+    box-shadow:4px 4px 0 var(--ink);
+    aspect-ratio:1;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;
+    position:relative;
+  }
+  .art-tile svg{width:62%;height:62%;}
+  .art-tile .lab{
+    position:absolute;left:14px;bottom:12px;
+    font-size:10.5px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;
+  }
+
+  /* responsive */
+  @media (max-width:980px){
+    .home-intro{grid-template-columns:1fr;gap:24px;padding:48px 22px 0;}
+    .rooms-wrap{padding:60px 22px 0;}
+    .rooms,.work-grid,.gallery-grid{grid-template-columns:1fr;}
+    .art-grid{grid-template-columns:repeat(2,1fr);padding:24px 22px 0;}
+    .principles{grid-template-columns:1fr;gap:14px;}
+    .work-head,.gallery{padding:36px 22px 18px;}
+    .work-grid,.art-grid{padding-left:22px;padding-right:22px;}
+    nav{padding:10px 16px;}
+    nav ul{gap:0;}
+    nav li{padding:6px 10px;font-size:12.5px;}
+    .label{font-size:13px;padding:9px 16px;}
+    .label.dot{width:46px;height:46px;font-size:20px;}
+    .hi{font-size:62px;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><span class="serif">julia</span><span class="path">./portfolio</span></div>
+  <ul>
+    <li class="active" data-page="home"><span class="ic">★</span>home</li>
+    <li data-page="work"><span class="ic">◆</span>work</li>
+    <li data-page="art"><span class="ic">✺</span>art</li>
+    <li data-page="playground"><span class="ic">✦</span>playground</li>
+  </ul>
+</nav>
+
+<!-- ─────────── HOME ─────────── -->
+<section class="page" id="page-home">
+  <div class="home-intro">
+    <div>
+      <div class="eyebrow">// PORTFOLIO · V2026</div>
+      <div class="hi">hi, i'm <span class="hl"><em>julia</em></span><span class="endot">.</span></div>
+      <div class="intro-body">
+        i make things at the intersection of <em>design</em>, <em>code</em> and <em>curiosity</em>. interested in HR, marketing, branding, product, and the occasional doodle.
+      </div>
+      <div class="terminal">./ready_when_you_are<span class="cursor"></span></div>
+    </div>
+    <div class="currently">
+      <div class="cur-eyebrow">currently</div>
+      <h4>exploring playful interfaces &amp; tiny tools.</h4>
+      <div class="cur-grid">
+        <div><div class="lbl">based</div><div class="val">los angeles</div></div>
+        <div><div class="lbl">from</div><div class="val">beijing → vancouver</div></div>
+        <div><div class="lbl">studying</div><div class="val">cog sci &amp; cs</div></div>
+        <div><div class="lbl">say hi</div><div class="val"><a href="mailto:juliayqz27@gmail.com">email</a></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rooms-wrap">
+    <div class="rooms-head">
+      <h2>the rooms</h2>
+      <div class="pick">pick a door ↓</div>
+    </div>
+    <div class="rooms">
+      <div class="room-card" data-go="work">
+        <div class="top"><span>01 — WORK</span><span class="icon">◆</span></div>
+        <h3>work</h3>
+        <p>Selected projects across product, design and strategy — building things people actually use.</p>
+        <div class="tags"><span class="tag">product</span><span class="tag">ux</span><span class="tag">research</span></div>
+      </div>
+      <div class="room-card" data-go="art">
+        <div class="top"><span>02 — ART</span><span class="icon">✺</span></div>
+        <h3>art</h3>
+        <p>Sketchbook scraps, illustrations, and visual studies. Where the cursor stops blinking.</p>
+        <div class="tags"><span class="tag">illustration</span><span class="tag">type</span><span class="tag">print</span></div>
+      </div>
+      <div class="room-card" data-go="playground">
+        <div class="top"><span>03 — PLAYGROUND</span><span class="icon">✦</span></div>
+        <h3>playground</h3>
+        <p>Tiny experiments, half-baked code, and curious side quests. No deliverables, just play.</p>
+        <div class="tags"><span class="tag">code</span><span class="tag">creative</span><span class="tag">wip</span></div>
+      </div>
+    </div>
+
+    <div class="principles">
+      <div class="principle"><span class="num">01</span><span class="text">make small things often</span></div>
+      <div class="principle"><span class="num">02</span><span class="text">keep the seams visible</span></div>
+      <div class="principle"><span class="num">03</span><span class="text">leave room to play</span></div>
+    </div>
+
+    <div class="cta-row">
+      <a href="#" data-go="work">start with the work →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── WORK ─────────── -->
+<section class="page hidden" id="page-work">
+  <div class="work-head">
+    <div class="crumb">01 — WORK</div>
+    <h1><span style="position:relative;z-index:1">work</span><span class="pd">.</span></h1>
+    <p>Things I've shipped, studied, or shaped — across product, brand, and research. A non-exhaustive index, most recent first.</p>
+  </div>
+  <div class="work-grid" id="work-grid">
+    <!-- cards injected by JS -->
+  </div>
+</section>
+
+<!-- ─────────── GALLERY (project detail) ─────────── -->
+<section class="page hidden" id="page-gallery">
+  <div class="gallery">
+    <a class="back" data-back>← back to work</a>
+    <div class="crumb" style="margin-bottom:14px;" id="gal-crumb">01 — WORK / FIELDNOTE</div>
+    <h1 id="gal-title" style="font-family:Fraunces,serif;font-size:64px;font-weight:500;letter-spacing:-.02em;margin-bottom:32px;">fieldnote</h1>
+
+    <h2>gallery highlights</h2>
+    <div class="gallery-grid">
+      <div class="gallery-item">
+        <div class="thumb">
+          <svg viewBox="0 0 240 200" preserveAspectRatio="xMidYMid meet">
+            <rect x="2" y="2" width="236" height="196" rx="14" fill="#ece4cd" stroke="#1a1815" stroke-width="2"/>
+            <rect x="22" y="22" width="80" height="60" rx="6" fill="#1a1815"/>
+            <rect x="116" y="22" width="100" height="84" rx="6" fill="#e6dcbf" stroke="#1a1815" stroke-width="1.2"/>
+            <circle cx="42" cy="110" r="6" fill="#1a1815"/>
+          </svg>
+          <div class="cap">work</div>
+        </div>
+        <div class="info">Illustration studies and mood sketches.</div>
+      </div>
+      <div class="gallery-item">
+        <div class="thumb">
+          <svg viewBox="0 0 240 200" preserveAspectRatio="xMidYMid meet">
+            <rect x="2" y="2" width="236" height="196" rx="14" fill="#fefcf5" stroke="#1a1815" stroke-width="2"/>
+            <rect x="22" y="22" width="100" height="60" rx="6" fill="#1a1815"/>
+            <rect x="138" y="22" width="80" height="40" rx="6" fill="#f1e7c7" stroke="#1a1815" stroke-width="1"/>
+            <circle cx="160" cy="120" r="14" fill="#1a1815"/>
+          </svg>
+          <div class="cap">art</div>
+        </div>
+        <div class="info">Typography and print-focused experiments.</div>
+      </div>
+      <div class="gallery-item">
+        <div class="thumb">
+          <svg viewBox="0 0 240 200" preserveAspectRatio="xMidYMid meet">
+            <rect x="2" y="2" width="236" height="196" rx="14" fill="#fefcf5" stroke="#1a1815" stroke-width="2"/>
+            <rect x="22" y="22" width="86" height="64" rx="6" fill="#1a1815"/>
+            <rect x="124" y="22" width="80" height="44" rx="6" fill="#f1e7c7" stroke="#1a1815" stroke-width="1"/>
+            <rect x="22" y="100" width="124" height="38" rx="999" fill="none" stroke="#1a1815" stroke-width="1.3"/>
+          </svg>
+          <div class="cap">play</div>
+        </div>
+        <div class="info">Visual systems and color explorations.</div>
+      </div>
+    </div>
+
+    <div class="pdf-section">
+      <h2>portfolio PDF</h2>
+      <p>Embed a PDF to share larger project archives, sketchbook scans, or exhibition notes. This is a simple integration for press kits and deeper storytelling.</p>
+      <div class="pdf-embed">
+        <div class="pdf-doc">
+          <h3>Project case study preview</h3>
+          <p>Work highlights, process, and outcomes&hellip;</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ART ─────────── -->
+<section class="page hidden" id="page-art">
+  <div class="work-head">
+    <div class="crumb">02 — ART</div>
+    <h1><span style="position:relative;z-index:1">art</span><span class="pd">.</span></h1>
+    <p>Sketchbook scraps, type studies, prints, and visual exploration. Made without an obvious reason.</p>
+  </div>
+  <div class="art-grid">
+    <div class="art-tile">
+      <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="34" fill="none" stroke="#1a1815" stroke-width="1.5"/><circle cx="50" cy="50" r="18" fill="#f6c83a"/><circle cx="50" cy="50" r="6" fill="#1a1815"/></svg>
+      <div class="lab">Composition 01</div>
+    </div>
+    <div class="art-tile">
+      <svg viewBox="0 0 100 100"><text x="50" y="68" text-anchor="middle" font-family="Fraunces" font-size="62" font-weight="600" fill="#1a1815" font-style="italic">A</text></svg>
+      <div class="lab">Type study</div>
+    </div>
+    <div class="art-tile">
+      <svg viewBox="0 0 100 100"><line x1="20" y1="80" x2="80" y2="20" stroke="#1a1815" stroke-width="1.5"/><line x1="20" y1="50" x2="80" y2="50" stroke="#1a1815" stroke-width="1.5"/><circle cx="50" cy="50" r="8" fill="#f6c83a"/></svg>
+      <div class="lab">Grid sketch</div>
+    </div>
+    <div class="art-tile">
+      <svg viewBox="0 0 100 100"><rect x="22" y="22" width="56" height="56" fill="#1a1815"/><rect x="32" y="32" width="36" height="36" fill="#f6c83a"/></svg>
+      <div class="lab">Color block</div>
+    </div>
+    <div class="art-tile">
+      <svg viewBox="0 0 100 100"><path d="M20 80 Q 50 10, 80 80" fill="none" stroke="#1a1815" stroke-width="1.5"/><circle cx="20" cy="80" r="4" fill="#1a1815"/><circle cx="80" cy="80" r="4" fill="#1a1815"/></svg>
+      <div class="lab">Curve study</div>
+    </div>
+    <div class="art-tile">
+      <svg viewBox="0 0 100 100"><circle cx="35" cy="50" r="22" fill="none" stroke="#1a1815" stroke-width="1.5"/><circle cx="65" cy="50" r="22" fill="none" stroke="#1a1815" stroke-width="1.5"/></svg>
+      <div class="lab">Venn</div>
+    </div>
+    <div class="art-tile">
+      <svg viewBox="0 0 100 100"><text x="50" y="62" text-anchor="middle" font-family="Fraunces" font-size="48" font-weight="500" fill="#1a1815">&amp;</text></svg>
+      <div class="lab">Ampersand</div>
+    </div>
+    <div class="art-tile">
+      <svg viewBox="0 0 100 100"><polygon points="50,18 82,82 18,82" fill="#f6c83a" stroke="#1a1815" stroke-width="1.5"/></svg>
+      <div class="lab">Triangle</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── PLAYGROUND ─────────── -->
+<section class="page hidden" id="page-playground">
+  <div class="work-head">
+    <div class="crumb">03 — PLAYGROUND</div>
+    <h1><span style="position:relative;z-index:1">play</span><span class="pd">.</span></h1>
+    <p>Half-baked code, generative sketches, micro-tools, and experiments without a destination.</p>
+  </div>
+  <div class="work-grid">
+    <div class="work-card">
+      <div class="top"><span>EXPERIMENT</span><span class="icon">✦</span></div>
+      <h3>tonepad</h3>
+      <p>A four-track sequencer that runs entirely in 200 lines of vanilla JS. Click, drag, make sounds.</p>
+      <div class="tags"><span class="tag">audio</span><span class="tag">js</span></div>
+    </div>
+    <div class="work-card">
+      <div class="top"><span>EXPERIMENT</span><span class="icon">✦</span></div>
+      <h3>cursor garden</h3>
+      <p>A reactive flora generator. Plants grow toward your cursor, then forget you exist.</p>
+      <div class="tags"><span class="tag">canvas</span><span class="tag">play</span></div>
+    </div>
+    <div class="work-card">
+      <div class="top"><span>EXPERIMENT</span><span class="icon">✦</span></div>
+      <h3>type weight slider</h3>
+      <p>Variable font test bench — drag axes, see the letterforms mutate in real time.</p>
+      <div class="tags"><span class="tag">type</span><span class="tag">tool</span></div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ───── DATA: work cards ───── */
+const works = [
+  {year:'2025', cat:'PRODUCT',     title:'fieldnote',           ic:'◆',  icCol:'#f6c83a', body:'A tiny CRM for early-stage founders. Designed the onboarding, shipped v1 in six weeks.', tags:['design','react','0→1']},
+  {year:'2024', cat:'RESEARCH',    title:'the quiet UX of waiting', ic:'◇', icCol:'#f6c83a', body:'Mixed-methods study on how people perceive loading states. 40 interviews, one essay.', tags:['research','writing']},
+  {year:'2024', cat:'BRANDING',    title:'kelp & co.',          ic:'❖',  icCol:'#f6c83a', body:'Identity system for a sustainable seaweed snack brand. Wordmark, packaging, voice.', tags:['brand','type','print']},
+  {year:'2023', cat:'INTERNSHIP',  title:'uber — growth design',ic:'◆',  icCol:'#f6c83a', body:'Two experiments shipped to riders in NA. +3.1% activation on the second flow.', tags:['design','growth']},
+  {year:'2023', cat:'SCHOOL',      title:'moodloop',            ic:'◆',  icCol:'#f6c83a', body:'A wearable concept exploring ambient affect tracking. Prototype + speculative film.', tags:['concept','hw']},
+  {year:'2022', cat:'FREELANCE',   title:'honest coffee co.',   ic:'◇',  icCol:'#f6c83a', body:'E-commerce site rebuild. 2.4× faster, 38% more conversions, much friendlier copy.', tags:['web','shopify']}
+];
+const grid = document.getElementById('work-grid');
+works.forEach((w, i) => {
+  const el = document.createElement('div');
+  el.className = 'work-card';
+  el.dataset.idx = i;
+  el.innerHTML = `
+    <div class="top"><span>${w.year} · ${w.cat}</span><span class="icon">${w.ic}</span></div>
+    <h3>${w.title}</h3>
+    <p>${w.body}</p>
+    <div class="tags">${w.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+  `;
+  el.addEventListener('click', ()=>openProject(i));
+  grid.appendChild(el);
+});
+
+function openProject(i){
+  const w = works[i];
+  document.getElementById('gal-crumb').textContent = `01 — WORK / ${w.title.toUpperCase()}`;
+  document.getElementById('gal-title').textContent = w.title;
+  show('gallery');
+}
+
+/* ───── Page nav ───── */
+const pages = ['home','work','art','playground','gallery'];
+function show(p){
+  pages.forEach(x=>{
+    const el = document.getElementById('page-'+x);
+    if(el) el.classList.toggle('hidden', x!==p);
+  });
+  document.querySelectorAll('nav li').forEach(li=>{
+    const target = p==='gallery' ? 'work' : p;
+    li.classList.toggle('active', li.dataset.page===target);
+  });
+  window.scrollTo({top:0,behavior:'instant'});
+}
+document.querySelectorAll('[data-page]').forEach(el=>{
+  el.addEventListener('click', e=>{ e.preventDefault(); show(el.dataset.page); });
+});
+document.querySelectorAll('[data-go]').forEach(el=>{
+  el.addEventListener('click', e=>{ e.preventDefault(); show(el.dataset.go); });
+});
+document.querySelectorAll('[data-back]').forEach(el=>{
+  el.addEventListener('click', e=>{ e.preventDefault(); show('work'); });
+});
+
+/* ───── Physics labels ───── */
+(function(){
+  const { Engine, Render, Runner, World, Bodies, Body, Mouse, MouseConstraint } = Matter;
+  const container = document.getElementById('physics');
+  const labels = Array.from(container.querySelectorAll('.label'));
+
+  let w = container.clientWidth;
+  let h = container.clientHeight;
+
+  const engine = Engine.create({
+    enableSleeping:false,
+    gravity:{x:0, y:0.7}
+  });
+  const world = engine.world;
+
+  const T = 200;
+  const wallOpts = { isStatic:true, render:{visible:false} };
+  const walls = [
+    Bodies.rectangle(w/2, -T/2, w*2, T, wallOpts),
+    Bodies.rectangle(w/2, h+T/2, w*2, T, wallOpts),
+    Bodies.rectangle(-T/2, h/2, T, h*2, wallOpts),
+    Bodies.rectangle(w+T/2, h/2, T, h*2, wallOpts),
+  ];
+  World.add(world, walls);
+
+  const bodies = labels.map((el, i) => {
+    el.style.visibility='hidden';
+    el.style.position='absolute';
+    el.style.left='-9999px';
+    document.body.appendChild(el);
+    const r = el.getBoundingClientRect();
+    container.appendChild(el);
+    const width = r.width || 100, height = r.height || 40;
+    const x = 80 + Math.random()*(w-160);
+    const y = -50 - i*70 - Math.random()*120;
+    let body;
+    if(el.dataset.shape === 'circle'){
+      body = Bodies.circle(x, y, height/2, {
+        restitution:0.55, friction:0.05, frictionAir:0.012, density:0.0018
+      });
+    } else {
+      body = Bodies.rectangle(x, y, width, height, {
+        restitution:0.5, friction:0.08, frictionAir:0.014, density:0.0015,
+        chamfer:{radius:height/2}
+      });
+    }
+    Body.setAngularVelocity(body, (Math.random()-0.5)*0.06);
+    body.el = el;
+    return body;
+  });
+  World.add(world, bodies);
+
+  const mouse = Mouse.create(container);
+  const mc = MouseConstraint.create(engine, {
+    mouse, constraint:{stiffness:0.18, angularStiffness:0, render:{visible:false}}
+  });
+  World.add(world, mc);
+  ['mousewheel','DOMMouseScroll','wheel'].forEach(ev=>{
+    mouse.element.removeEventListener(ev, mouse.mousewheel);
+  });
+
+  function sync(){
+    bodies.forEach(b=>{
+      const el = b.el;
+      el.style.visibility='visible';
+      el.style.left = b.position.x+'px';
+      el.style.top  = b.position.y+'px';
+      el.style.transform = `translate(-50%,-50%) rotate(${b.angle}rad)`;
+    });
+    requestAnimationFrame(sync);
+  }
+  sync();
+  Matter.Runner.run(Matter.Runner.create(), engine);
+
+  let rTimer;
+  window.addEventListener('resize',()=>{
+    clearTimeout(rTimer);
+    rTimer = setTimeout(()=>{
+      const nw = container.clientWidth, nh = container.clientHeight;
+      Body.setPosition(walls[0], {x:nw/2, y:-T/2});
+      Body.setPosition(walls[1], {x:nw/2, y:nh+T/2});
+      Body.setPosition(walls[2], {x:-T/2, y:nh/2});
+      Body.setPosition(walls[3], {x:nw+T/2, y:nh/2});
+      w=nw; h=nh;
+    }, 120);
+  });
+
+  setTimeout(()=>{
+    bodies.forEach(b=>Body.applyForce(b, b.position, {x:(Math.random()-0.5)*0.03, y:0.005}));
+  }, 300);
+})();
+</script>
+</body>
+</html>
