@@ -7,749 +7,1969 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   :root{
-    --bg:#f5efdf;
-    --bg-2:#ece4cd;
-    --ink:#1a1815;
-    --muted:#7a7466;
-    --soft:#3a362e;
+    --bg:#e7f0fa;
+    --bg-2:#d2e2f4;
+    --bg-hi:#cfe4f7;
+    --ink:#152238;
+    --muted:#63799a;
+    --soft:#28394f;
     --accent:#f6c83a;
     --accent-soft:#fce8a3;
-    --card:#fdfaef;
-    --line:#1a1815;
+    --card:#f7fbff;
+    --line:#152238;
+  }
+  html[data-theme="bw"]{
+    --bg:#f0f0f0;
+    --bg-2:#dcdcdc;
+    --bg-hi:#ffffff;
+    --ink:#141414;
+    --muted:#6e6e6e;
+    --soft:#2b2b2b;
+    --accent:#b3b3b3;
+    --accent-soft:#e2e2e2;
+    --card:#ffffff;
+    --line:#141414;
+  }
+  html[data-theme="green-pink"]{
+    --bg:#e9f7ef;
+    --bg-2:#cdedd9;
+    --bg-hi:#ffffff;
+    --ink:#1c3a2a;
+    --muted:#4f9670;
+    --soft:#215939;
+    --accent:#ee74a6;
+    --accent-soft:#f9cfe0;
+    --card:#f5fffa;
+    --line:#1c3a2a;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{
-    background:var(--bg);
-    background-image:radial-gradient(circle, rgba(26,24,21,.18) 1px, transparent 1.2px);
-    background-size:18px 18px;
+    height:100%;
     color:var(--ink);
   }
   body{
     font-family:'JetBrains Mono',ui-monospace,monospace;
     -webkit-font-smoothing:antialiased;
-    overflow-x:hidden;
+    overflow:hidden;
+    position:fixed;inset:0;
   }
   .serif{font-family:'Fraunces',serif;}
   a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;border:none;background:none;cursor:pointer;}
 
-  /* ───── NAV ───── */
-  nav{
-    position:sticky;top:0;z-index:60;
-    display:flex;justify-content:space-between;align-items:center;
-    padding:14px 32px;
-    background:rgba(245,239,223,.78);
-    backdrop-filter:blur(8px);
-    border-bottom:1px solid rgba(26,24,21,.12);
+  /* ═══════════ WALLPAPER ═══════════ */
+  .wallpaper{
+    position:fixed;inset:0;z-index:0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(255,255,255,.55), transparent 60%),
+      linear-gradient(180deg, var(--bg-hi) 0%, var(--bg) 45%, var(--bg-2) 100%);
   }
-  .logo{font-size:18px;display:flex;align-items:baseline;gap:6px;}
-  .logo .serif{font-weight:500;font-size:22px;}
-  .logo .path{color:var(--muted);font-size:14px;}
-  nav ul{display:flex;gap:4px;list-style:none;}
-  nav li{
-    padding:8px 16px;display:flex;align-items:center;gap:8px;
-    font-size:14px;cursor:pointer;border-radius:999px;
-    transition:background .15s;
+  .wallpaper::before{
+    content:"";position:absolute;inset:0;
+    background-image:radial-gradient(circle, rgba(21,34,56,.14) 1px, transparent 1.2px);
+    background-size:20px 20px;
+    opacity:.7;
   }
-  nav li:hover{background:rgba(26,24,21,.06);}
-  nav li.active{background:var(--ink);color:var(--bg);}
-  nav li.active:hover{background:var(--ink);}
-  nav li .ic{color:var(--accent);font-size:13px;}
+  .cloud{
+    position:absolute;border-radius:50%;
+    background:rgba(255,255,255,.55);
+    filter:blur(2px);
+  }
 
-  /* ───── PAGES ───── */
-  .page{padding:0 0 100px;}
-  .page.hidden{display:none;}
-
-  /* ───── HERO LABELS ───── */
-  .labels-hero{
-    position:relative;
-    height:78vh;min-height:580px;
-    border-bottom:1px solid rgba(26,24,21,.12);
-    overflow:hidden;
+  /* ═══════════ MENU BAR ═══════════ */
+  .menubar{
+    position:fixed;top:0;left:0;right:0;z-index:1000;
+    height:34px;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 16px;
+    background:rgba(247,251,255,.72);
+    backdrop-filter:blur(14px) saturate(1.4);
+    border-bottom:1px solid rgba(21,34,56,.15);
+    font-size:13px;
   }
-  #physics{position:absolute;inset:0;}
-  .label{
-    position:absolute;visibility:hidden;
-    user-select:none;cursor:grab;
-    font-family:'JetBrains Mono',monospace;
-    font-size:17px;font-weight:500;
-    letter-spacing:.04em;text-transform:uppercase;
-    padding:13px 24px;
-    border:1.5px solid var(--ink);
-    border-radius:999px;
-    background:var(--card);
-    white-space:nowrap;line-height:1;
-    box-shadow:3px 3px 0 var(--ink);
-  }
-  .label.yellow{background:var(--accent);}
-  .label.dot{
-    width:62px;height:62px;padding:0;
-    background:var(--ink);color:var(--bg);
+  .mb-left{display:flex;align-items:center;gap:16px;}
+  .mb-left .brand{display:flex;align-items:center;gap:7px;font-weight:600;}
+  .mb-left .brand .dot{
+    width:16px;height:16px;border-radius:50%;
+    background:var(--ink);color:var(--accent);
     display:flex;align-items:center;justify-content:center;
-    font-size:26px;font-family:'Fraunces',serif;
-    box-shadow:3px 3px 0 var(--ink);
+    font-family:'Fraunces',serif;font-size:11px;font-weight:700;
   }
-  .label.tiny-dot{
-    width:14px;height:14px;background:var(--ink);
-    box-shadow:2px 2px 0 var(--ink);
+  .mb-left .menu-item{color:var(--muted);cursor:pointer;transition:color .12s;}
+  .mb-left .menu-item:hover{color:var(--ink);}
+  .menu-item-wrap{position:relative;}
+  .menu-item-wrap.open .menu-item{color:var(--ink);}
+  .menu-dropdown{
+    display:none;flex-direction:column;gap:2px;
+    position:absolute;top:24px;left:0;min-width:190px;
+    background:var(--card);border:1.5px solid var(--ink);border-radius:8px;
+    box-shadow:3px 3px 0 var(--ink);padding:6px;z-index:1001;
   }
-  .label.tiny-ring{
-    width:18px;height:18px;background:transparent;
-    box-shadow:2px 2px 0 var(--ink);
+  .menu-dropdown.open{display:flex;}
+  .menu-dropdown-item{
+    text-align:left;padding:7px 10px;border-radius:5px;
+    font-size:12.5px;color:var(--ink);background:none;
   }
-  .hero-name{
-    position:absolute;left:0;right:0;bottom:-1.4vw;
-    text-align:center;
-    font-family:'Fraunces',serif;
-    font-weight:600;
-    font-size:clamp(46px,12.8vw,210px);
-    letter-spacing:-0.045em;line-height:.85;
-    pointer-events:none;
-    white-space:nowrap;
+  .menu-dropdown-item:hover{background:var(--bg-2);}
+  .mb-right{display:flex;align-items:center;gap:18px;color:var(--soft);}
+  .mb-right a{display:flex;align-items:center;font-size:13px;opacity:.85;transition:opacity .15s;}
+  .mb-right a:hover{opacity:1;}
+  .mb-clock{font-size:12.5px;color:var(--soft);white-space:nowrap;}
+
+  /* ═══════════ DESKTOP ICONS ═══════════ */
+  .desktop{
+    position:fixed;top:34px;left:0;right:0;bottom:0;z-index:1;
+  }
+  .desktop-icons{
+    position:absolute;inset:22px 22px 84px;
+    display:grid;
+    grid-auto-flow:column;
+    grid-template-rows:repeat(auto-fill, 96px);
+    grid-auto-columns:92px;
+    gap:6px;
+    justify-content:start;
+  }
+  .dicon{
+    width:92px;height:92px;
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    padding:8px 4px 6px;border-radius:10px;
+    cursor:pointer;user-select:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .dicon.selected{background:rgba(21,34,56,.10);}
+  .dicon-box{
+    width:52px;height:52px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--card);border:1.5px solid var(--ink);
+    box-shadow:2.5px 2.5px 0 var(--ink);
+    font-size:22px;font-family:'Fraunces',serif;
     color:var(--ink);
   }
-  .hero-foot{
-    position:absolute;bottom:14px;font-size:11px;
-    letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
-    pointer-events:none;
+  .dicon-box svg{width:27px;height:27px;}
+  .dicon-label{
+    font-size:11px;text-align:center;line-height:1.25;
+    color:var(--ink);
+    padding:1px 5px;border-radius:4px;
+    max-width:88px;
   }
-  .hero-foot.l{left:32px;}
-  .hero-foot.r{right:32px;}
+  .dicon.selected .dicon-label{background:var(--ink);color:var(--bg);}
 
-  /* ───── HOME INTRO ───── */
-  .home-intro{
-    display:grid;grid-template-columns:1.35fr 1fr;gap:72px;
-    padding:96px 80px 0;
-    max-width:1320px;margin:0 auto;align-items:start;
-  }
-  .eyebrow{
-    font-size:13px;letter-spacing:.12em;
-    color:var(--accent);font-weight:500;
-    margin-bottom:22px;
-  }
-  .hi{
-    font-family:'Fraunces',serif;
-    font-size:clamp(54px,8.8vw,128px);
-    font-weight:500;line-height:.95;letter-spacing:-.02em;
-  }
-  .hi em{font-style:italic;font-weight:400;}
-  .hi .hl{
-    position:relative;display:inline-block;padding:0 4px;
-  }
-  .hi .hl::before{
-    content:"";position:absolute;
-    left:-2%;right:-2%;top:18%;bottom:14%;
-    background:var(--accent);z-index:-1;
-    border-radius:2px;
-  }
-  .hi .endot{color:var(--accent);}
-  .intro-body{
-    font-size:18px;line-height:1.6;color:var(--soft);
-    margin-top:30px;max-width:580px;
-  }
-  .intro-body em{font-style:italic;color:var(--ink);}
-  .terminal{
-    margin-top:22px;font-size:15px;color:var(--muted);
-  }
-  .terminal .cursor{
-    display:inline-block;width:7px;height:16px;
-    background:var(--ink);vertical-align:-3px;
-    margin-left:1px;animation:blink 1.05s steps(1) infinite;
-  }
-  @keyframes blink{50%{opacity:0;}}
-
-  /* currently card */
-  .currently{
-    background:var(--card);
+  /* ═══════════ DOCK ═══════════ */
+  .dock{
+    position:fixed;left:50%;bottom:16px;z-index:900;
+    transform:translateX(-50%);
+    display:flex;align-items:flex-end;gap:12px;
+    padding:10px 16px;border-radius:22px;
+    background:rgba(247,251,255,.75);
     border:1.5px solid var(--ink);
-    border-radius:18px;
-    padding:28px 28px 26px;
-    box-shadow:6px 6px 0 var(--ink);
-    margin-top:24px;
-  }
-  .cur-eyebrow{
-    display:flex;align-items:center;gap:8px;
-    font-size:13px;color:var(--muted);letter-spacing:.05em;
-    margin-bottom:14px;
-  }
-  .cur-eyebrow::before{
-    content:"";width:8px;height:8px;background:var(--accent);border-radius:50%;
-  }
-  .currently h4{
-    font-family:'Fraunces',serif;
-    font-size:24px;font-weight:500;line-height:1.25;letter-spacing:-.01em;
-    margin-bottom:24px;
-  }
-  .cur-grid{
-    display:grid;grid-template-columns:1fr 1fr;gap:18px 24px;
-  }
-  .cur-grid .lbl{font-size:11px;color:var(--muted);letter-spacing:.06em;margin-bottom:4px;}
-  .cur-grid .val{font-size:14px;}
-  .cur-grid .val a{border-bottom:1px solid var(--accent);}
-
-  /* ───── ROOMS ───── */
-  .rooms-wrap{padding:96px 80px 0;max-width:1320px;margin:0 auto;}
-  .rooms-head{
-    display:flex;justify-content:space-between;align-items:baseline;
-    margin-bottom:28px;
-  }
-  .rooms-head h2{
-    font-family:'Fraunces',serif;font-size:42px;font-weight:500;letter-spacing:-.01em;
-  }
-  .rooms-head .pick{font-size:14px;color:var(--muted);}
-  .rooms{
-    display:grid;grid-template-columns:repeat(3,1fr);gap:22px;
-  }
-  .room-card{
-    background:var(--card);
-    border:1.5px solid var(--ink);
-    border-radius:14px;
-    padding:22px 22px 20px;
-    box-shadow:5px 5px 0 var(--ink);
-    cursor:pointer;
-    transition:transform .18s, box-shadow .18s;
-  }
-  .room-card:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink);}
-  .room-card .top{
-    display:flex;justify-content:space-between;align-items:flex-start;
-    font-size:11px;color:var(--muted);letter-spacing:.12em;
-    margin-bottom:42px;
-  }
-  .room-card .icon{color:var(--accent);font-size:20px;line-height:1;}
-  .room-card h3{
-    font-family:'Fraunces',serif;font-size:34px;font-weight:500;
-    margin-bottom:12px;letter-spacing:-.01em;
-  }
-  .room-card p{
-    font-size:13.5px;line-height:1.55;color:var(--soft);
-    margin-bottom:22px;min-height:62px;
-  }
-  .tags{display:flex;gap:8px;flex-wrap:wrap;}
-  .tag{
-    background:rgba(26,24,21,.07);
-    padding:5px 12px;border-radius:999px;
-    font-size:11.5px;
-  }
-
-  /* principles */
-  .principles{
-    margin-top:42px;
-    border:1.5px dashed rgba(26,24,21,.32);
-    border-radius:14px;padding:28px 30px;
-    display:grid;grid-template-columns:repeat(3,1fr);gap:32px;
-  }
-  .principle{display:flex;align-items:center;gap:18px;}
-  .principle .num{color:var(--accent);font-size:13px;font-weight:600;}
-  .principle .text{font-family:'Fraunces',serif;font-size:20px;}
-
-  .cta-row{text-align:center;margin-top:60px;}
-  .cta-row a{
-    font-family:'Fraunces',serif;font-size:22px;
-    border-bottom:2px solid var(--accent);padding-bottom:3px;
-  }
-
-  /* ───── WORK PAGE ───── */
-  .work-head{padding:80px 80px 32px;max-width:1320px;margin:0 auto;}
-  .crumb{font-size:13px;color:var(--accent);margin-bottom:22px;letter-spacing:.04em;}
-  .crumb::before{content:"> ";}
-  .work-head h1{
-    font-family:'Fraunces',serif;font-size:clamp(72px,11vw,144px);
-    font-weight:500;line-height:.9;letter-spacing:-.025em;
-    margin-bottom:24px;
-    display:inline-block;position:relative;
-    padding:0 6px;
-  }
-  .work-head h1::before{
-    content:"";position:absolute;
-    left:-2%;right:35%;top:18%;bottom:14%;
-    background:var(--accent);z-index:-1;border-radius:2px;
-  }
-  .work-head h1 .pd{color:var(--ink);}
-  .work-head p{
-    font-size:14.5px;line-height:1.65;color:var(--soft);max-width:640px;
-  }
-  .work-grid{
-    display:grid;grid-template-columns:repeat(3,1fr);gap:22px;
-    padding:32px 80px 0;max-width:1320px;margin:0 auto;
-  }
-  .work-card{
-    background:var(--card);
-    border:1.5px solid var(--ink);border-radius:14px;
-    box-shadow:5px 5px 0 var(--ink);
-    padding:22px;cursor:pointer;
-    transition:transform .18s,box-shadow .18s;
-    position:relative;
-  }
-  .work-card:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink);}
-  .work-card .top{
-    display:flex;justify-content:space-between;align-items:flex-start;
-    font-size:11px;color:var(--muted);letter-spacing:.12em;
-    margin-bottom:48px;
-  }
-  .work-card .icon{color:var(--accent);font-size:18px;line-height:1;}
-  .work-card h3{
-    font-family:'Fraunces',serif;font-size:30px;font-weight:500;
-    margin-bottom:12px;letter-spacing:-.01em;
-  }
-  .work-card p{
-    font-size:13px;line-height:1.55;color:var(--soft);
-    margin-bottom:18px;min-height:78px;
-  }
-
-  /* ───── GALLERY (project detail) ───── */
-  .gallery{padding:48px 80px;max-width:1320px;margin:0 auto;}
-  .back{font-size:12.5px;color:var(--muted);display:inline-flex;align-items:center;gap:6px;margin-bottom:24px;cursor:pointer;}
-  .back:hover{color:var(--ink);}
-  .gallery h2{
-    font-family:'Fraunces',serif;font-size:34px;font-weight:500;
-    margin-bottom:22px;letter-spacing:-.01em;
-  }
-  .gallery-grid{
-    display:grid;grid-template-columns:repeat(3,1fr);gap:22px;
-  }
-  .gallery-item{
-    background:var(--card);
-    border:1.5px solid var(--ink);border-radius:14px;
     box-shadow:4px 4px 0 var(--ink);
-    overflow:hidden;
+    backdrop-filter:blur(14px);
   }
-  .gallery-item .thumb{
-    background:var(--bg-2);height:200px;
-    position:relative;border-bottom:1.5px solid var(--ink);
+  .dock-item{
+    width:46px;height:46px;border-radius:11px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--card);border:1.5px solid var(--ink);
+    font-size:19px;font-family:'Fraunces',serif;
+    cursor:pointer;transition:transform .12s;
+    color:var(--ink);
   }
-  .gallery-item .thumb svg{position:absolute;inset:24px;width:calc(100% - 48px);height:calc(100% - 48px);}
-  .gallery-item .thumb .cap{
-    position:absolute;left:14px;bottom:10px;
-    font-size:11px;color:var(--muted);letter-spacing:.05em;
-  }
-  .gallery-item .info{padding:16px 18px;font-size:13px;line-height:1.5;color:var(--soft);min-height:84px;}
+  .dock-item svg{width:23px;height:23px;}
+  .dock-item:hover{transform:translateY(-6px);}
+  .dock-sep{width:1.5px;align-self:stretch;background:rgba(21,34,56,.25);margin:2px 2px;}
 
-  .pdf-section{margin-top:64px;}
-  .pdf-section h2{
-    font-family:'Fraunces',serif;font-size:34px;font-weight:500;
-    margin-bottom:14px;letter-spacing:-.01em;
-  }
-  .pdf-section p{font-size:13.5px;line-height:1.65;color:var(--soft);margin-bottom:24px;max-width:640px;}
-  .pdf-embed{
-    background:#888;
-    border:1.5px solid var(--ink);
-    border-radius:12px;
-    box-shadow:5px 5px 0 var(--ink);
-    height:580px;padding:36px;
-    display:flex;align-items:flex-start;justify-content:center;
-    position:relative;
-  }
-  .pdf-doc{
-    background:#fff;width:90%;height:100%;
-    padding:60px;font-family:'Inter',sans-serif;
-  }
-  .pdf-doc h3{font-size:38px;font-weight:400;color:#000;margin-bottom:24px;line-height:1.15;}
-  .pdf-doc p{font-size:38px;font-weight:400;color:#000;line-height:1.15;}
-
-  /* ───── ART / PLAYGROUND ───── */
-  .art-grid{
-    display:grid;grid-template-columns:repeat(4,1fr);gap:18px;
-    padding:32px 80px 0;max-width:1320px;margin:0 auto;
-  }
-  .art-tile{
+  /* ═══════════ WINDOWS ═══════════ */
+  .windows-layer{position:fixed;inset:34px 0 0 0;z-index:50;pointer-events:none;}
+  .window{
+    position:absolute;
+    display:none;flex-direction:column;
+    width:640px;max-width:calc(100vw - 40px);
+    height:560px;max-height:calc(100vh - 110px);
     background:var(--card);
     border:1.5px solid var(--ink);border-radius:12px;
-    box-shadow:4px 4px 0 var(--ink);
-    aspect-ratio:1;overflow:hidden;
-    display:flex;align-items:center;justify-content:center;
-    position:relative;
+    box-shadow:8px 8px 0 var(--ink);
+    pointer-events:auto;
+    overflow:hidden;
   }
-  .art-tile svg{width:62%;height:62%;}
-  .art-tile .lab{
-    position:absolute;left:14px;bottom:12px;
-    font-size:10.5px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;
+  .window.open{display:flex;}
+  .window.maximized{
+    width:calc(100vw - 40px) !important;
+    height:calc(100vh - 110px) !important;
+    left:20px !important;top:20px !important;
+  }
+  .resize-handle{
+    position:absolute;z-index:5;
+  }
+  .resize-handle:hover{background:rgba(21,34,56,.12);}
+  .resize-handle.resize-left{top:0;bottom:0;left:0;width:8px;cursor:ew-resize;}
+  .resize-handle.resize-right{top:0;bottom:0;right:0;width:8px;cursor:ew-resize;}
+  .resize-handle.resize-top{left:0;right:0;top:0;height:8px;cursor:ns-resize;}
+  .resize-handle.resize-bottom{left:0;right:0;bottom:0;height:8px;cursor:ns-resize;}
+  .win-titlebar{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 14px;
+    border-bottom:1.5px solid var(--ink);
+    background:var(--bg-2);
+    cursor:grab;flex-shrink:0;
+  }
+  .win-titlebar:active{cursor:grabbing;}
+  .win-dots{display:flex;gap:7px;}
+  .win-btn{
+    width:12px;height:12px;border-radius:50%;
+    border:1px solid rgba(21,34,56,.35);
+    display:flex;align-items:center;justify-content:center;
+    font-size:8px;line-height:1;color:transparent;
+  }
+  .win-btn.red{background:#ec6a5e;}
+  .win-btn.yellow{background:#f3bd4c;}
+  .win-btn.green{background:#61c454;}
+  .win-titlebar:hover .win-btn{color:rgba(21,34,56,.55);}
+  .win-title{
+    flex:1;text-align:center;font-size:12.5px;color:var(--soft);
+    letter-spacing:.03em;margin-right:40px;
+  }
+  .win-body{flex:1;overflow-y:auto;padding:28px 32px 40px;}
+  .win-crumb{font-size:12px;color:var(--accent);margin-bottom:14px;letter-spacing:.04em;}
+  .win-crumb::before{content:"> ";}
+  .win-h1{
+    font-family:'Fraunces',serif;font-size:clamp(34px,6vw,48px);
+    font-weight:500;letter-spacing:-.02em;line-height:1;margin-bottom:16px;
+    display:inline-block;position:relative;padding:0 4px;
+  }
+  .win-h1::before{
+    content:"";position:absolute;left:-2%;right:-2%;top:14%;bottom:10%;
+    background:var(--accent);z-index:-1;border-radius:2px;
+  }
+  .win-p{font-size:13.5px;line-height:1.65;color:var(--soft);max-width:520px;margin-bottom:8px;}
+
+  /* ───── about ───── */
+  .about-content .eyebrow{font-size:12.5px;letter-spacing:.1em;color:var(--accent);font-weight:500;margin-bottom:16px;}
+  .about-content .hi{font-family:'Fraunces',serif;font-size:clamp(36px,6vw,52px);font-weight:500;line-height:.95;letter-spacing:-.02em;margin-bottom:20px;}
+  .about-content .hi em{font-style:italic;font-weight:400;}
+  .about-content .hi .hl{position:relative;display:inline-block;padding:0 4px;}
+  .about-content .hi .hl::before{content:"";position:absolute;left:-2%;right:-2%;top:18%;bottom:14%;background:var(--accent);z-index:-1;border-radius:2px;}
+  .about-content .hi .endot{color:var(--accent);}
+  .about-content .intro-body{font-size:15.5px;line-height:1.65;color:var(--soft);margin-bottom:18px;}
+  .about-content .intro-body em{font-style:italic;color:var(--ink);}
+  .about-content .terminal{font-size:14px;color:var(--muted);margin-bottom:28px;}
+  .about-content .terminal a{border-bottom:1px solid var(--accent);}
+  .about-content .terminal .cursor{display:inline-block;width:6px;height:14px;background:var(--ink);vertical-align:-2px;margin-left:1px;animation:blink 1.05s steps(1) infinite;}
+  @keyframes blink{50%{opacity:0;}}
+  .currently{background:var(--bg-2);border:1.5px solid var(--ink);border-radius:14px;padding:22px 24px 20px;box-shadow:4px 4px 0 var(--ink);}
+  .cur-eyebrow{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);letter-spacing:.05em;margin-bottom:12px;}
+  .cur-eyebrow::before{content:"";width:8px;height:8px;background:var(--accent);border-radius:50%;}
+  .currently h4{font-family:'Fraunces',serif;font-size:20px;font-weight:500;line-height:1.25;letter-spacing:-.01em;margin-bottom:18px;}
+  .cur-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 20px;}
+  .cur-grid .lbl{font-size:10.5px;color:var(--muted);letter-spacing:.06em;margin-bottom:4px;}
+  .cur-grid .val{font-size:13.5px;}
+  .cur-grid .val a{border-bottom:1px solid var(--accent);}
+
+  /* ───── work cards / gallery (shared) ───── */
+  .work-grid-2{display:grid;grid-template-columns:1fr;gap:16px;}
+  .work-card{
+    background:var(--bg);border:1.5px solid var(--ink);border-radius:12px;
+    box-shadow:4px 4px 0 var(--ink);padding:18px 20px;cursor:pointer;
+    transition:transform .15s,box-shadow .15s;
+  }
+  .work-card:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink);}
+  .work-card .top{display:flex;justify-content:space-between;align-items:flex-start;font-size:10.5px;color:var(--muted);letter-spacing:.1em;margin-bottom:16px;}
+  .work-card .icon{color:var(--accent);font-size:16px;line-height:1;}
+  .work-card h3{font-family:'Fraunces',serif;font-size:24px;font-weight:500;margin-bottom:8px;letter-spacing:-.01em;}
+  .work-card .role{font-size:12px;color:var(--muted);margin:-4px 0 10px;font-style:italic;}
+  .work-card p{font-size:12.5px;line-height:1.55;color:var(--soft);margin-bottom:14px;}
+  .tags{display:flex;gap:7px;flex-wrap:wrap;}
+  .tag{background:rgba(21,34,56,.07);padding:4px 10px;border-radius:999px;font-size:10.5px;}
+  .card-logo-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .card-logo-row h3{margin-bottom:0;flex:1;}
+  .org-logo{width:38px;height:38px;flex-shrink:0;border-radius:8px;border:1.5px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;letter-spacing:.02em;text-align:center;line-height:1.2;background:#fff;padding:2px;overflow:hidden;}
+  .org-logo img{width:100%;height:100%;display:block;object-fit:contain;border-radius:5px;}
+
+  /* ───── research section ───── */
+  .research-section{margin-top:46px;padding-top:34px;border-top:1.5px solid var(--ink);}
+  #research-section-host .research-section{margin:0;padding:0;border:0;}
+  .research-list{display:grid;grid-template-columns:1fr;gap:16px;}
+  .research-card{
+    background:var(--bg);border:1.5px solid var(--ink);border-radius:12px;
+    box-shadow:4px 4px 0 var(--ink);padding:20px;
+  }
+  .research-card h3{font-family:'Fraunces',serif;font-size:23px;font-weight:500;line-height:1.1;margin-bottom:6px;}
+  .research-title-row{display:flex;align-items:center;gap:11px;margin-bottom:7px;}
+  .research-title-row h3{margin-bottom:0;flex:1;}
+  .research-logo{width:42px;height:42px;flex:0 0 42px;border:1.5px solid var(--ink);border-radius:8px;background:#fff;padding:2px;overflow:hidden;}
+  .research-logo img{width:100%;height:100%;display:block;object-fit:contain;border-radius:5px;}
+  .research-logo--tlc img{object-position:center center;transform:scale(.9);transform-origin:center;}
+  .research-location{font-size:10.5px;color:var(--muted);letter-spacing:.06em;margin-bottom:15px;}
+  .research-meta{display:grid;grid-template-columns:1fr auto;gap:7px 18px;font-size:11.5px;line-height:1.45;margin-bottom:14px;}
+  .research-meta .pi{grid-column:1/-1;color:var(--muted);}
+  .research-topics{display:flex;flex-direction:column;gap:7px;}
+  .research-topic{font-size:12.5px;line-height:1.45;color:var(--soft);padding:9px 11px;background:rgba(21,34,56,.06);border-radius:7px;}
+  .research-topic strong{font-weight:600;color:var(--ink);}
+  .research-poster{margin-top:15px;background:var(--bg-2);border:1.5px solid var(--ink);border-radius:8px;overflow:hidden;cursor:zoom-in;}
+  .research-poster img{width:100%;height:auto;max-height:300px;object-fit:contain;display:block;}
+  .research-group{display:flex;flex-direction:column;gap:12px;margin-top:4px;}
+  .research-subentry{padding:14px;background:rgba(255,255,255,.5);border:1px solid rgba(21,34,56,.28);border-radius:9px;}
+  .research-subentry h4{font-family:'Fraunces',serif;font-size:19px;font-weight:500;margin-bottom:4px;}
+  .research-subentry .research-meta{margin:8px 0 10px;}
+
+  .back{font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:6px;margin-bottom:18px;cursor:pointer;}
+  .back:hover{color:var(--ink);}
+  .gallery-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px;}
+  .gallery-item{background:var(--bg);border:1.5px solid var(--ink);border-radius:12px;box-shadow:3px 3px 0 var(--ink);overflow:hidden;}
+  .gallery-item .thumb{background:var(--bg-2);min-height:120px;position:relative;border-bottom:1.5px solid var(--ink);}
+  .gallery-item .thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .gallery-item .thumb .cap{position:absolute;left:12px;bottom:8px;font-size:10.5px;color:var(--muted);letter-spacing:.05em;}
+  .gallery-item .info{padding:12px 14px;font-size:12px;line-height:1.5;color:var(--soft);}
+  .gal-empty{grid-column:1/-1;font-size:13px;color:var(--muted);padding:16px 0;}
+  .pdf-section{margin-top:36px;}
+
+  /* ───── wallpapers collage + lightbox ───── */
+  .wallpapers-section{margin-top:36px;}
+  .wallpapers-section h2{font-family:'Fraunces',serif;font-size:22px;font-weight:500;margin-bottom:16px;letter-spacing:-.01em;}
+  #campaigns-container h2:not(:first-child){margin-top:36px;}
+  .yearbook-frame{
+    width:100%;max-width:260px;height:420px;display:block;
+    border:1.5px solid var(--ink);border-radius:10px;
+    box-shadow:3px 3px 0 var(--ink);
   }
 
+  .business-card-img{
+    width:100%;max-width:320px;display:block;
+    border:1.5px solid var(--ink);border-radius:10px;
+    box-shadow:3px 3px 0 var(--ink);
+  }
+
+  /* ───── butterflies drag collage ───── */
+  .butterfly-section{margin-top:44px;}
+  .cats-img{
+    width:100%;max-width:600px;display:block;
+    border:1.5px solid var(--ink);border-radius:12px;
+    box-shadow:4px 4px 0 var(--ink);
+  }
+
+  /* ───── sketches photobooth strip ───── */
+  .photobooth-strip{
+    position:relative;
+    width:100%;max-width:190px;
+    background:var(--card);
+    border:1.5px solid var(--ink);border-radius:10px;
+    box-shadow:4px 4px 0 var(--ink);
+    padding:16px 14px 18px;
+    display:flex;flex-direction:column;gap:10px;
+    transform:rotate(-2deg);
+    margin:22px 0 12px 24px;
+  }
+  .strip-pin{
+    position:absolute;top:-11px;left:50%;transform:translateX(-50%);
+    width:18px;height:18px;border-radius:50%;
+    background:var(--accent);border:1.5px solid var(--ink);
+    box-shadow:1px 1px 0 var(--ink);
+  }
+  .strip-img{
+    width:100%;display:block;cursor:zoom-in;
+    border:1.5px solid var(--ink);border-radius:5px;
+    background:var(--bg-2);
+  }
+  .strip-caption{
+    text-align:center;font-family:'Fraunces',serif;font-style:italic;
+    font-size:14px;color:var(--soft);margin-top:2px;
+  }
+  .butterfly-stage{
+    position:relative;width:100%;max-width:460px;height:410px;
+    margin:0 auto;user-select:none;
+  }
+
+  /* ───── color flipbook ───── */
+  .flipbook{width:100%;max-width:360px;}
+  .flipbook-pages{
+    position:relative;width:100%;aspect-ratio:1.414/1;
+    perspective:1400px;
+  }
+  .flipbook-page{
+    position:absolute;inset:0;
+    border:1.5px solid var(--ink);border-radius:8px;
+    box-shadow:3px 3px 0 var(--ink);
+    overflow:hidden;background:var(--bg-2);
+    transform-origin:left center;
+    transform:rotateY(0deg);
+    transition:transform .7s cubic-bezier(.45,.05,.55,.95);
+    backface-visibility:hidden;
+  }
+  .flipbook-page img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;}
+  .flipbook-edge{
+    position:absolute;top:0;bottom:0;width:15%;
+    z-index:999;cursor:pointer;
+  }
+  .flipbook-edge.left{left:0;}
+  .flipbook-edge.right{right:0;}
+  .flipbook-edge:hover{background:rgba(0,0,0,.06);}
+  .flipbook-controls{display:flex;align-items:center;justify-content:center;margin-top:16px;}
+  .flipbook-counter{
+    font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);
+    letter-spacing:.05em;min-width:44px;text-align:center;
+  }
+  .butterfly-tile{
+    position:absolute;cursor:grab;
+    border:1.5px solid var(--ink);border-radius:8px;
+    box-shadow:2px 2px 0 var(--ink);
+    overflow:hidden;background:var(--card);
+    touch-action:none;
+  }
+  .butterfly-tile.round{border-radius:50%;}
+  .butterfly-tile img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;}
+  .butterfly-tile.dragging{cursor:grabbing;box-shadow:5px 5px 0 var(--ink);z-index:80;}
+  @media (max-width:760px){
+    .butterfly-stage{transform:scale(.74);transform-origin:top left;height:303px;}
+  }
+  .wallpaper-grid{display:flex;flex-wrap:wrap;align-items:flex-start;gap:20px;padding:6px 2px 10px;}
+  .wallpaper-thumb{
+    position:relative;height:160px;flex:0 0 auto;cursor:zoom-in;
+    background:var(--bg);border:1.5px solid var(--ink);border-radius:8px;
+    box-shadow:3px 3px 0 var(--ink);overflow:hidden;
+    transition:transform .18s,box-shadow .18s;
+  }
+  .wallpaper-thumb:nth-child(odd){transform:rotate(-2deg);}
+  .wallpaper-thumb:nth-child(even){transform:rotate(2deg);}
+  .wallpaper-thumb:hover{transform:scale(1.05) rotate(0deg);box-shadow:5px 5px 0 var(--ink);z-index:2;}
+  .wallpaper-thumb img{height:100%;width:auto;display:block;}
+  .wallpaper-thumb .wp-fallback{
+    display:none;height:160px;width:110px;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    font-size:10.5px;color:var(--muted);text-align:center;padding:10px;background:var(--bg-2);
+  }
+  /* ───── recruitment campaigns collage ───── */
+  .campaigns-row{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;}
+  .recruitment-grid{
+    display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px;
+    padding:14px;border-radius:12px;
+    background:var(--bg-2);border:1.5px solid var(--ink);
+    box-shadow:4px 4px 0 var(--ink);
+  }
+  .recruitment-thumb{
+    position:relative;height:108px;flex:0 0 auto;cursor:zoom-in;
+    background:var(--bg);border-radius:5px;
+    overflow:hidden;transition:transform .15s;
+  }
+  .recruitment-thumb:hover{transform:scale(1.06);z-index:2;}
+  .recruitment-thumb img{height:100%;width:auto;display:block;}
+  .recruitment-thumb .rc-fallback{
+    display:none;height:108px;width:88px;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+    font-size:9px;color:var(--muted);text-align:center;padding:8px;background:var(--card);
+  }
+  .lightbox{
+    position:fixed;inset:0;z-index:5000;
+    background:rgba(21,34,56,.85);
+    display:none;align-items:center;justify-content:center;
+    padding:48px;cursor:zoom-out;
+  }
+  .lightbox.open{display:flex;}
+  .lightbox img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 24px 60px rgba(0,0,0,.5);cursor:default;}
+  .lightbox-close{
+    position:absolute;top:22px;right:26px;
+    width:38px;height:38px;border-radius:50%;
+    background:var(--card);border:1.5px solid var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    font-size:16px;cursor:pointer;color:var(--ink);
+  }
+  .lightbox-nav{
+    position:absolute;top:50%;transform:translateY(-50%);
+    width:48px;height:48px;border-radius:50%;
+    background:var(--card);border:1.5px solid var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;line-height:1;cursor:pointer;color:var(--ink);
+    transition:transform .12s;
+  }
+  .lightbox-nav:hover{transform:translateY(-50%) scale(1.08);}
+  .lightbox-prev{left:24px;}
+  .lightbox-next{right:24px;}
+  @media (max-width:760px){
+    .lightbox-nav{width:40px;height:40px;font-size:22px;}
+    .lightbox-prev{left:8px;}
+    .lightbox-next{right:8px;}
+  }
+  .canva-btn{
+    display:inline-flex;align-items:center;gap:10px;
+    background:var(--bg);border:1.5px solid var(--ink);border-radius:11px;padding:14px 22px;
+    box-shadow:4px 4px 0 var(--ink);font-family:'Fraunces',serif;font-size:16px;
+    transition:transform .15s,box-shadow .15s;
+  }
+  .canva-btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink);}
+
+
+  /* ───── resources ───── */
+  .contact-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:stretch;}
+  .res-link{
+    display:flex;align-items:center;
+    background:var(--bg);border:1.5px solid var(--ink);border-radius:12px;
+    box-shadow:3px 3px 0 var(--ink);padding:16px 14px;margin-bottom:0;min-width:0;
+    transition:transform .15s,box-shadow .15s;
+  }
+  .res-link:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink);}
+  .res-link .rtxt{min-width:0;}
+  .res-link .rtxt .rt1{font-family:'Fraunces',serif;font-size:16px;}
+  .res-link .rtxt .rt2{font-size:11px;color:var(--muted);overflow-wrap:anywhere;}
+
+  /* ───── trash interactive ───── */
+  .trash-stage{display:flex;gap:16px;align-items:flex-start;margin-bottom:22px;}
+  .trash-main{flex:1;position:relative;display:flex;flex-direction:column;gap:12px;min-height:170px;}
+  .paper-ball{
+    position:relative;width:100%;min-height:130px;
+    border-radius:6px;
+    transform:rotate(-1deg);
+    transition:width .5s cubic-bezier(.5,-0.35,.4,1.3),
+               height .5s cubic-bezier(.5,-0.35,.4,1.3),
+               min-height .5s cubic-bezier(.5,-0.35,.4,1.3),
+               border-radius .5s ease,
+               transform .5s cubic-bezier(.5,-0.35,.4,1.3),
+               box-shadow .3s ease;
+  }
+  .paper-ball.folded{
+    width:64px;height:64px;min-height:0;
+    margin:0 auto;
+    transform:rotate(10deg);
+    cursor:pointer;
+  }
+  .trash-paper{
+    position:absolute;inset:0;
+    width:100%;height:100%;resize:none;
+    background:#f7f1de;
+    background-image:repeating-linear-gradient(to bottom, transparent 0, transparent 21px, rgba(21,34,56,.12) 22px);
+    background-position:0 32px;
+    border:1.5px solid var(--ink);border-radius:6px;
+    box-shadow:3px 3px 0 var(--ink);
+    padding:14px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--soft);
+    outline:none;transition:opacity .22s ease;
+  }
+  .paper-ball.folded .trash-paper{opacity:0;pointer-events:none;}
+  .paper-crease{
+    position:absolute;inset:0;width:100%;height:100%;
+    opacity:0;pointer-events:none;
+    transition:opacity .22s ease .18s;
+  }
+  .paper-ball.folded .paper-crease{opacity:1;}
+  .fold-btn{
+    align-self:flex-start;
+    background:var(--accent);border:1.5px solid var(--ink);border-radius:8px;
+    padding:8px 16px;font-family:'Fraunces',serif;font-size:14px;
+    box-shadow:2.5px 2.5px 0 var(--ink);cursor:pointer;
+    transition:transform .12s,box-shadow .12s;
+  }
+  .fold-btn:hover{transform:translate(-1px,-1px);box-shadow:3.5px 3.5px 0 var(--ink);}
+  .fold-btn:active{transform:translate(1px,1px);box-shadow:1.5px 1.5px 0 var(--ink);}
+  .paper-ball.tossing{animation:tossArc .65s ease-in forwards;}
+  @keyframes tossArc{
+    0%{transform:rotate(10deg) translate(0,0) scale(1);opacity:1;}
+    50%{transform:rotate(150deg) translate(calc(var(--dx) * .5), calc(var(--dy) * .42 - 30px)) scale(.8);opacity:1;}
+    80%{transform:rotate(300deg) translate(calc(var(--dx) * .94), calc(var(--dy) * .94)) scale(.4);opacity:1;}
+    100%{transform:rotate(380deg) translate(var(--dx), var(--dy)) scale(.05);opacity:0;}
+  }
+  .toss-hint{
+    position:absolute;left:50%;top:104px;transform:translateX(-50%);
+    font-size:11px;color:var(--muted);white-space:nowrap;
+    opacity:0;transition:opacity .2s;pointer-events:none;
+  }
+  .toss-hint.show{opacity:1;}
+  .trash-bin-wrap{width:110px;margin:0 auto;text-align:center;color:var(--ink);}
+  .trash-bin-svg{width:100px;height:100px;}
+  .bin-lid{transform-origin:50px 32px;}
+  .bin-lid.flip{animation:lidFlip .65s ease;}
+  @keyframes lidFlip{0%,100%{transform:rotate(0deg);}30%{transform:rotate(-20deg);}60%{transform:rotate(5deg);}}
+
   /* responsive */
-  @media (max-width:980px){
-    .home-intro{grid-template-columns:1fr;gap:24px;padding:48px 22px 0;}
-    .rooms-wrap{padding:60px 22px 0;}
-    .rooms,.work-grid,.gallery-grid{grid-template-columns:1fr;}
-    .art-grid{grid-template-columns:repeat(2,1fr);padding:24px 22px 0;}
-    .principles{grid-template-columns:1fr;gap:14px;}
-    .work-head,.gallery{padding:36px 22px 18px;}
-    .work-grid,.art-grid{padding-left:22px;padding-right:22px;}
-    nav{padding:10px 16px;}
-    nav ul{gap:0;}
-    nav li{padding:6px 10px;font-size:12.5px;}
-    .label{font-size:13px;padding:9px 16px;}
-    .label.dot{width:46px;height:46px;font-size:20px;}
-    .hi{font-size:62px;}
+  @media (max-width:760px){
+    .desktop-icons{grid-template-rows:repeat(auto-fill, 86px);grid-auto-columns:80px;inset:14px 14px 96px;}
+    .dicon{width:80px;height:80px;}
+    .window{
+      position:fixed !important;
+      inset:34px 0 0 0 !important;
+      width:100% !important;height:calc(100% - 34px) !important;
+      max-width:none;max-height:none;
+      left:0 !important;top:0 !important;
+      border-radius:0;
+    }
+    .win-body{padding:22px 18px 40px;}
+    .gallery-grid,.art-grid{grid-template-columns:1fr;}
+    .cur-grid{grid-template-columns:1fr;}
+    .mb-left .menu-item{display:none;}
   }
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="logo"><span class="serif">julia</span><span class="path">./portfolio</span></div>
-  <ul>
-    <li class="active" data-page="home"><span class="ic">★</span>home</li>
-    <li data-page="work"><span class="ic">◆</span>work</li>
-    <li data-page="art"><span class="ic">✺</span>art</li>
-    <li data-page="playground"><span class="ic">✦</span>playground</li>
-  </ul>
-</nav>
+<div class="wallpaper" id="wallpaper"></div>
 
-<!-- ─────────── HOME ─────────── -->
-<section class="page" id="page-home">
-  <div class="home-intro">
-    <div>
-      <div class="eyebrow">// PORTFOLIO · V2026</div>
-      <div class="hi">hi, i'm <span class="hl"><em>julia</em></span><span class="endot">.</span></div>
-      <div class="intro-body">
-        i make things at the intersection of <em>design</em>, <em>code</em>, and <em>curiosity</em>. interested in HR, marketing, branding, product, and the occasional doodle.
+<div class="menubar">
+  <div class="mb-left">
+    <div class="brand"><span class="dot">j</span>julia</div>
+    <div class="menu-item-wrap">
+      <span class="menu-item" data-menu="file">File</span>
+      <div class="menu-dropdown" id="menuFile">
+        <button class="menu-dropdown-item" id="saveAsBtn" type="button">Save As… (screenshot)</button>
       </div>
-      <div class="terminal">./ready_when_you_are<span class="cursor"></span></div>
     </div>
-    <div class="currently">
-      <div class="cur-eyebrow">currently</div>
-      <h4>exploring playful interfaces &amp; tiny tools.</h4>
-      <div class="cur-grid">
-        <div><div class="lbl">based</div><div class="val">los angeles</div></div>
-        <div><div class="lbl">from</div><div class="val">beijing → vancouver</div></div>
-        <div><div class="lbl">studying</div><div class="val">cog sci &amp; cs</div></div>
-        <div><div class="lbl">say hi</div><div class="val"><a href="mailto:juliayqz27@gmail.com">email</a></div></div>
+    <div class="menu-item-wrap">
+      <span class="menu-item" data-menu="edit">Edit</span>
+      <div class="menu-dropdown" id="menuEdit">
+        <button class="menu-dropdown-item" type="button" data-theme="default">Default</button>
+        <button class="menu-dropdown-item" type="button" data-theme="bw">Black &amp; White</button>
+        <button class="menu-dropdown-item" type="button" data-theme="green-pink">Green &amp; Pink</button>
+      </div>
+    </div>
+    <div class="menu-item-wrap">
+      <span class="menu-item" data-menu="view">View</span>
+      <div class="menu-dropdown" id="menuView">
+        <button class="menu-dropdown-item" id="zoomInBtn" type="button">Zoom In</button>
+        <button class="menu-dropdown-item" id="zoomOutBtn" type="button">Zoom Out</button>
       </div>
     </div>
   </div>
-
-  <div class="rooms-wrap">
-    <div class="rooms-head">
-      <h2>the rooms</h2>
-      <div class="pick">pick a door ↓</div>
-    </div>
-    <div class="rooms">
-      <div class="room-card" data-go="work">
-        <div class="top"><span>01 — WORK</span><span class="icon">◆</span></div>
-        <h3>work</h3>
-        <p>Selected projects across product, design, and strategy — building things people actually use.</p>
-        <div class="tags"><span class="tag">product</span><span class="tag">ux</span><span class="tag">research</span></div>
-      </div>
-      <div class="room-card" data-go="art">
-        <div class="top"><span>02 — ART</span><span class="icon">✺</span></div>
-        <h3>art</h3>
-        <p>Sketchbook scraps, illustrations, and visual studies. Where the cursor stops blinking.</p>
-        <div class="tags"><span class="tag">illustration</span><span class="tag">type</span><span class="tag">print</span></div>
-      </div>
-      <div class="room-card" data-go="playground">
-        <div class="top"><span>03 — PLAYGROUND</span><span class="icon">✦</span></div>
-        <h3>playground</h3>
-        <p>Tiny experiments, half-baked code, and curious side quests. No deliverables, just play.</p>
-        <div class="tags"><span class="tag">code</span><span class="tag">creative</span><span class="tag">wip</span></div>
-      </div>
-    </div>
-
-    <div class="principles">
-      <div class="principle"><span class="num">01</span><span class="text">make small things often</span></div>
-      <div class="principle"><span class="num">02</span><span class="text">keep the seams visible</span></div>
-      <div class="principle"><span class="num">03</span><span class="text">leave room to play</span></div>
-    </div>
-
-    <div class="cta-row">
-      <a href="#" data-go="work">start with the work →</a>
-    </div>
+  <div class="mb-right">
+    <a href="https://www.linkedin.com/in/julia-yuqing-zhang/" target="_blank" rel="noopener" title="LinkedIn">in</a>
+    <a href="mailto:jyqzhang@g.ucla.edu" title="Email">✉</a>
+    <span class="mb-clock" id="mbClock"></span>
   </div>
-</section>
+</div>
 
-<!-- ─────────── WORK ─────────── -->
-<section class="page hidden" id="page-work">
-  <div class="work-head">
-    <div class="crumb">01 — WORK</div>
-    <h1><span style="position:relative;z-index:1">work</span><span class="pd">.</span></h1>
-    <p>Things I've shipped, studied, or shaped — across product, brand, and research. A non-exhaustive index, most recent first.</p>
+<div id="zoomRoot">
+<div class="desktop" id="desktop">
+  <div class="desktop-icons">
+    <div class="dicon" data-win="about"><div class="dicon-box">☺</div><div class="dicon-label">julia</div></div>
+    <div class="dicon" data-win="work"><div class="dicon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8"/><path d="M12 16v4"/></svg></div><div class="dicon-label">Media</div></div>
+    <div class="dicon" data-win="research"><div class="dicon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"/><path d="M8 15h8"/></svg></div><div class="dicon-label">Research</div></div>
+    <div class="dicon" data-win="art"><div class="dicon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 2-.9 1.6-1.9-.2-.6.2-1.3.9-1.3H16a4 4 0 0 0 4-4c0-6-3.6-10.8-8-10.8z"/><circle cx="8" cy="9" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="7" r="1.3" fill="currentColor" stroke="none"/><circle cx="16" cy="9.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="8.5" cy="14" r="1.3" fill="currentColor" stroke="none"/></svg></div><div class="dicon-label">Playground</div></div>
+    <div class="dicon" data-win="resources"><div class="dicon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-4 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/><circle cx="8.5" cy="11" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="11" r="1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="11" r="1" fill="currentColor" stroke="none"/></svg></div><div class="dicon-label">Contact</div></div>
+    <div class="dicon" data-win="trash"><div class="dicon-box">🗑</div><div class="dicon-label">Trash</div></div>
   </div>
-  <div class="work-grid" id="work-grid">
-    <!-- cards injected by JS -->
-  </div>
-</section>
+</div>
 
-<!-- ─────────── GALLERY (project detail) ─────────── -->
-<section class="page hidden" id="page-gallery">
-  <div class="gallery">
-    <a class="back" href="#" data-back>← back to work</a>
-    <div class="crumb" style="margin-bottom:14px;" id="gal-crumb">01 — WORK / FIELDNOTE</div>
-    <h1 id="gal-title" style="font-family:Fraunces,serif;font-size:64px;font-weight:500;letter-spacing:-.02em;margin-bottom:32px;">fieldnote</h1>
+<div class="windows-layer">
 
-    <h2>gallery highlights</h2>
-    <div class="gallery-grid">
-      <div class="gallery-item">
-        <div class="thumb">
-          <svg viewBox="0 0 240 200" preserveAspectRatio="xMidYMid meet">
-            <rect x="2" y="2" width="236" height="196" rx="14" fill="#ece4cd" stroke="#1a1815" stroke-width="2"/>
-            <rect x="22" y="22" width="80" height="60" rx="6" fill="#1a1815"/>
-            <rect x="116" y="22" width="100" height="84" rx="6" fill="#e6dcbf" stroke="#1a1815" stroke-width="1.2"/>
-            <circle cx="42" cy="110" r="6" fill="#1a1815"/>
-          </svg>
-          <div class="cap">work</div>
-        </div>
-        <div class="info">Illustration studies and mood sketches.</div>
+  <!-- ABOUT -->
+  <div class="window" id="win-about">
+    <div class="win-titlebar">
+      <div class="win-dots">
+        <button class="win-btn red" onclick="closeWindow('about')"></button>
+        <button class="win-btn yellow" onclick="closeWindow('about')"></button>
+        <button class="win-btn green" onclick="toggleMax('about')"></button>
       </div>
-      <div class="gallery-item">
-        <div class="thumb">
-          <svg viewBox="0 0 240 200" preserveAspectRatio="xMidYMid meet">
-            <rect x="2" y="2" width="236" height="196" rx="14" fill="#fefcf5" stroke="#1a1815" stroke-width="2"/>
-            <rect x="22" y="22" width="100" height="60" rx="6" fill="#1a1815"/>
-            <rect x="138" y="22" width="80" height="40" rx="6" fill="#f1e7c7" stroke="#1a1815" stroke-width="1"/>
-            <circle cx="160" cy="120" r="14" fill="#1a1815"/>
-          </svg>
-          <div class="cap">art</div>
-        </div>
-        <div class="info">Typography and print-focused experiments.</div>
-      </div>
-      <div class="gallery-item">
-        <div class="thumb">
-          <svg viewBox="0 0 240 200" preserveAspectRatio="xMidYMid meet">
-            <rect x="2" y="2" width="236" height="196" rx="14" fill="#fefcf5" stroke="#1a1815" stroke-width="2"/>
-            <rect x="22" y="22" width="86" height="64" rx="6" fill="#1a1815"/>
-            <rect x="124" y="22" width="80" height="44" rx="6" fill="#f1e7c7" stroke="#1a1815" stroke-width="1"/>
-            <rect x="22" y="100" width="124" height="38" rx="999" fill="none" stroke="#1a1815" stroke-width="1.3"/>
-          </svg>
-          <div class="cap">play</div>
-        </div>
-        <div class="info">Visual systems and color explorations.</div>
-      </div>
+      <div class="win-title">About</div>
     </div>
-
-    <div class="pdf-section">
-      <h2>portfolio PDF</h2>
-      <p>Embed a PDF to share larger project archives, sketchbook scans, or exhibition notes. This is a simple integration for press kits and deeper storytelling.</p>
-      <div class="pdf-embed">
-        <div class="pdf-doc">
-          <h3>Project case study preview</h3>
-          <p>Work highlights, process, and outcomes&hellip;</p>
+    <div class="win-body">
+      <div class="about-content">
+        <div class="win-crumb">About</div>
+        <div class="hi">hi, i'm <span class="hl"><em>julia</em></span><span class="endot">.</span></div>
+        <div class="intro-body">exploring media, conducting research, and building community at ucla &amp; beyond.</div>
+        <div class="terminal"><a href="mailto:jyqzhang@g.ucla.edu">jyqzhang@g.ucla.edu</a><span class="cursor"></span></div>
+        <div class="currently">
+          <div class="cur-eyebrow">currently</div>
+          <h4>student at UCLA.</h4>
+          <div class="cur-grid">
+            <div><div class="lbl">studying</div><div class="val">cognitive science</div></div>
+            <div><div class="lbl">status</div><div class="val">probably having an iced americano and chocolate croissant while typing away at her computer</div></div>
+            <div><div class="lbl">say hi</div><div class="val"><a href="https://www.linkedin.com/in/julia-yuqing-zhang/" target="_blank" rel="noopener">linkedin</a></div></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</section>
 
-<!-- ─────────── ART ─────────── -->
-<section class="page hidden" id="page-art">
-  <div class="work-head">
-    <div class="crumb">02 — ART</div>
-    <h1><span style="position:relative;z-index:1">art</span><span class="pd">.</span></h1>
-    <p>Sketchbook scraps, type studies, prints, and visual exploration. Made without an obvious reason.</p>
-  </div>
-  <div class="art-grid">
-    <div class="art-tile">
-      <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="34" fill="none" stroke="#1a1815" stroke-width="1.5"/><circle cx="50" cy="50" r="18" fill="#f6c83a"/><circle cx="50" cy="50" r="6" fill="#1a1815"/></svg>
-      <div class="lab">Composition 01</div>
+  <!-- MEDIA -->
+  <div class="window" id="win-work">
+    <div class="win-titlebar">
+      <div class="win-dots">
+        <button class="win-btn red" onclick="closeWindow('work')"></button>
+        <button class="win-btn yellow" onclick="closeWindow('work')"></button>
+        <button class="win-btn green" onclick="toggleMax('work')"></button>
+      </div>
+      <div class="win-title">Media</div>
     </div>
-    <div class="art-tile">
-      <svg viewBox="0 0 100 100"><text x="50" y="68" text-anchor="middle" font-family="Fraunces" font-size="62" font-weight="600" fill="#1a1815" font-style="italic">A</text></svg>
-      <div class="lab">Type study</div>
-    </div>
-    <div class="art-tile">
-      <svg viewBox="0 0 100 100"><line x1="20" y1="80" x2="80" y2="20" stroke="#1a1815" stroke-width="1.5"/><line x1="20" y1="50" x2="80" y2="50" stroke="#1a1815" stroke-width="1.5"/><circle cx="50" cy="50" r="8" fill="#f6c83a"/></svg>
-      <div class="lab">Grid sketch</div>
-    </div>
-    <div class="art-tile">
-      <svg viewBox="0 0 100 100"><rect x="22" y="22" width="56" height="56" fill="#1a1815"/><rect x="32" y="32" width="36" height="36" fill="#f6c83a"/></svg>
-      <div class="lab">Color block</div>
-    </div>
-    <div class="art-tile">
-      <svg viewBox="0 0 100 100"><path d="M20 80 Q 50 10, 80 80" fill="none" stroke="#1a1815" stroke-width="1.5"/><circle cx="20" cy="80" r="4" fill="#1a1815"/><circle cx="80" cy="80" r="4" fill="#1a1815"/></svg>
-      <div class="lab">Curve study</div>
-    </div>
-    <div class="art-tile">
-      <svg viewBox="0 0 100 100"><circle cx="35" cy="50" r="22" fill="none" stroke="#1a1815" stroke-width="1.5"/><circle cx="65" cy="50" r="22" fill="none" stroke="#1a1815" stroke-width="1.5"/></svg>
-      <div class="lab">Venn</div>
-    </div>
-    <div class="art-tile">
-      <svg viewBox="0 0 100 100"><text x="50" y="62" text-anchor="middle" font-family="Fraunces" font-size="48" font-weight="500" fill="#1a1815">&amp;</text></svg>
-      <div class="lab">Ampersand</div>
-    </div>
-    <div class="art-tile">
-      <svg viewBox="0 0 100 100"><polygon points="50,18 82,82 18,82" fill="#f6c83a" stroke="#1a1815" stroke-width="1.5"/></svg>
-      <div class="lab">Triangle</div>
-    </div>
-  </div>
-</section>
+    <div class="win-body">
+      <div id="work-list-view">
+        <div class="win-crumb">01 — MEDIA</div>
+        <h1 class="win-h1" style="margin-bottom:22px;">media.</h1>
+        <div class="work-grid-2" id="work-timeline"></div>
+        <section class="research-section" id="research-section">
+          <div class="win-crumb">02 — RESEARCH</div>
+          <h1 class="win-h1" style="margin-bottom:22px;">research.</h1>
+          <div class="research-list">
+            <article class="research-card">
+              <div class="research-title-row">
+                <div class="research-logo"><img src="all logo icons/ucla anderson.jpg" alt="UCLA Anderson logo"></div>
+                <h3>UCLA Anderson School of Management</h3>
+              </div>
+              <div class="research-location">LOS ANGELES, CA</div>
+              <div class="research-meta">
+                <span>Research Assistant</span><span>Mar 2026 – Present</span>
+                <span class="pi">Principal Investigator: Jana Gallus</span>
+              </div>
+              <div class="research-topics">
+                <div class="research-topic"><strong>Parental AI Beliefs</strong> — beliefs about AI in education, industry, child use, and spending preferences for AI resources.</div>
+                <div class="research-topic"><strong>Summer Learning Loss</strong> — beliefs, interventions, and demographic disparities in pre-K–8 academic achievement trajectories.</div>
+              </div>
+            </article>
 
-<!-- ─────────── PLAYGROUND ─────────── -->
-<section class="page hidden" id="page-playground">
-  <div class="work-head">
-    <div class="crumb">03 — PLAYGROUND</div>
-    <h1><span style="position:relative;z-index:1">play</span><span class="pd">.</span></h1>
-    <p>Half-baked code, generative sketches, micro-tools, and experiments without a destination.</p>
+            <article class="research-card">
+              <div class="research-title-row">
+                <div class="research-logo"><img src="all logo icons/candy lab logo.png" alt="UCLA CANDY Lab logo"></div>
+                <h3>UCLA Cognition, Affect, and Neurodevelopment in Youth Lab</h3>
+              </div>
+              <div class="research-location">LOS ANGELES, CA</div>
+              <div class="research-meta">
+                <span>Research Assistant</span><span>Mar 2026 – Present</span>
+                <span class="pi">Principal Investigator: Tiffany Ho</span>
+              </div>
+              <div class="research-topics">
+                <div class="research-topic"><strong>Social Processing Task</strong> — social media use, reactions to social stimuli, and brain function in young people.</div>
+                <div class="research-topic"><strong>Teen Inflammation Glutamate Emotion Research</strong> — roles of inflammation and glutamate in adolescent depression.</div>
+              </div>
+            </article>
+
+            <article class="research-card">
+              <div class="research-title-row">
+                <div class="research-logo research-logo--tlc"><img src="all logo icons/tlc lab logo.png" alt="UCLA Teaching, Learning, and Communication Lab logo"></div>
+                <h3>UCLA Teaching, Learning, and Communication Lab</h3>
+              </div>
+              <div class="research-location">LOS ANGELES, CA</div>
+              <div class="research-meta">
+                <span>Research Assistant</span><span>Oct 2025 – Present</span>
+                <span class="pi">Principal Investigator: Melissa Paquette-Smith</span>
+              </div>
+              <div class="research-topics">
+                <div class="research-topic"><strong>Does Speech Imitation Enhance Voice Recognition?</strong> Evidence from a multi-day voice recognition task.</div>
+              </div>
+              <div class="research-poster" data-research-poster>
+                <img src="VR_Imitation Psi Chi Poster-2.png" alt="Does Speech Imitation Enhance Voice Recognition research poster">
+              </div>
+            </article>
+
+            <article class="research-card">
+              <div class="research-title-row">
+                <div class="research-logo"><img src="all logo icons/DataTalks Logo.png" alt="DataTalks Consulting logo"></div>
+                <h3>DataTalks Consulting</h3>
+              </div>
+              <div class="research-location">RESEARCH &amp; STRATEGY PROJECTS · LOS ANGELES, CA</div>
+              <div class="research-meta research-meta-overall">
+                <span>Internal Vice President</span><span>Jan 2025 – Present</span>
+              </div>
+              <div class="research-group">
+                <div class="research-subentry">
+                  <h4>It Gets Better</h4>
+                  <div class="research-meta"><span>Project Manager</span><span>Apr 2025 – Jul 2025</span></div>
+                  <div class="research-topic"><strong>Subtopic</strong> — donor segmentation, outreach strategy, content planning, and CRM migration.</div>
+                </div>
+                <div class="research-subentry">
+                  <h4>Population Health Innovation Lab</h4>
+                  <div class="research-meta"><span>Project Consultant</span><span>Jan 2025 – Apr 2025</span></div>
+                  <div class="research-topic"><strong>Subtopic</strong> — California school mental-health initiatives, program synergies, gaps, and access barriers for underprivileged youth.</div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+      <div id="work-detail-view" style="display:none;">
+        <a class="back" data-back>← back to media</a>
+        <div class="win-crumb" id="gal-crumb">MEDIA / PROJECT</div>
+        <h1 class="win-h1" id="gal-title" style="font-size:30px;">project</h1>
+        <p class="win-p" id="gal-desc" style="margin-bottom:24px;"></p>
+        <div id="gal-highlights-section" style="display:none;">
+          <h2 style="font-family:'Fraunces',serif;font-size:22px;font-weight:500;margin-bottom:8px;">gallery highlights</h2>
+          <div class="gallery-grid" id="gal-grid"></div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start;margin-top:36px;">
+          <div class="wallpapers-section" id="gal-wallpapers" style="display:none;margin-top:0;flex:1;min-width:260px;">
+            <h2>Wallpapers</h2>
+            <div class="wallpaper-grid" id="wallpaper-grid"></div>
+          </div>
+          <div class="wallpapers-section" id="gal-whatmakesucla" style="display:none;margin-top:0;">
+            <h2>UCLA Brochure</h2>
+            <iframe id="whatMakesUclaFrame" src="" class="yearbook-frame"></iframe>
+          </div>
+        </div>
+        <div class="wallpapers-section" id="gal-campaigns" style="display:none;">
+          <div id="campaigns-container"></div>
+        </div>
+        <div class="wallpapers-section" id="gal-recruitment" style="display:none;">
+          <h2 id="recruitment-title">Recruitment Campaigns</h2>
+          <div class="recruitment-grid" id="recruitment-grid"></div>
+        </div>
+        <div class="wallpapers-section" id="gal-moremedia" style="display:none;">
+          <h2 id="moremedia-title">More Media</h2>
+          <div class="recruitment-grid" id="moremedia-grid"></div>
+        </div>
+        <div class="wallpapers-section" id="gal-yearbook" style="display:none;">
+          <h2 id="yearbook-title">2025-26 Yearbook</h2>
+          <iframe id="yearbookFrame" src="" class="yearbook-frame"></iframe>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="work-grid">
-    <div class="work-card">
-      <div class="top"><span>EXPERIMENT</span><span class="icon">✦</span></div>
-      <h3>tonepad</h3>
-      <p>A four-track sequencer that runs entirely in 200 lines of vanilla JS. Click, drag, make sounds.</p>
-      <div class="tags"><span class="tag">audio</span><span class="tag">js</span></div>
+
+  <!-- RESEARCH -->
+  <div class="window" id="win-research">
+    <div class="win-titlebar">
+      <div class="win-dots">
+        <button class="win-btn red" onclick="closeWindow('research')"></button>
+        <button class="win-btn yellow" onclick="closeWindow('research')"></button>
+        <button class="win-btn green" onclick="toggleMax('research')"></button>
+      </div>
+      <div class="win-title">Research</div>
     </div>
-    <div class="work-card">
-      <div class="top"><span>EXPERIMENT</span><span class="icon">✦</span></div>
-      <h3>cursor garden</h3>
-      <p>A reactive flora generator. Plants grow toward your cursor, then forget you exist.</p>
-      <div class="tags"><span class="tag">canvas</span><span class="tag">play</span></div>
+    <div class="win-body" id="research-section-host"></div>
+  </div>
+
+  <!-- PLAYGROUND -->
+  <div class="window" id="win-art">
+    <div class="win-titlebar">
+      <div class="win-dots">
+        <button class="win-btn red" onclick="closeWindow('art')"></button>
+        <button class="win-btn yellow" onclick="closeWindow('art')"></button>
+        <button class="win-btn green" onclick="toggleMax('art')"></button>
+      </div>
+      <div class="win-title">Playground</div>
     </div>
-    <div class="work-card">
-      <div class="top"><span>EXPERIMENT</span><span class="icon">✦</span></div>
-      <h3>type weight slider</h3>
-      <p>Variable font test bench — drag axes, see the letterforms mutate in real time.</p>
-      <div class="tags"><span class="tag">type</span><span class="tag">tool</span></div>
+    <div class="win-body">
+      <div class="win-crumb">03 — PLAYGROUND</div>
+      <h1 class="win-h1" style="margin-bottom:22px;">playground.</h1>
+      <div class="butterfly-section" style="margin-top:0;">
+        <h2 style="font-family:'Fraunces',serif;font-size:22px;font-weight:500;margin-bottom:16px;letter-spacing:-.01em;">Butterflies</h2>
+        <div class="butterfly-stage" id="butterflyStage"></div>
+      </div>
+
+      <div class="butterfly-section">
+        <h2 style="font-family:'Fraunces',serif;font-size:22px;font-weight:500;margin-bottom:16px;letter-spacing:-.01em;">Cats</h2>
+        <img src="cats.png" alt="Six cat sketches" class="cats-img">
+      </div>
+
+      <div class="butterfly-section">
+        <div style="display:grid;grid-template-columns:1fr 2fr;gap:36px;align-items:start;">
+          <div>
+            <h2 style="font-family:'Fraunces',serif;font-size:22px;font-weight:500;margin-bottom:16px;letter-spacing:-.01em;">Sketches</h2>
+            <div class="photobooth-strip">
+              <div class="strip-pin"></div>
+              <img src="sketches/sketches.png" alt="Sketchbook: archery, waterfall, and roses" class="strip-img">
+              <div class="strip-caption">pencil + paper</div>
+            </div>
+          </div>
+          <div>
+            <h2 style="font-family:'Fraunces',serif;font-size:22px;font-weight:500;margin-bottom:16px;letter-spacing:-.01em;">Color Flipbook</h2>
+            <div class="flipbook">
+              <div class="flipbook-pages" id="flipbookPages"></div>
+              <div class="flipbook-controls">
+                <span class="flipbook-counter" id="flipbookCounter">1 / 1</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="butterfly-section">
+        <h2 style="font-family:'Fraunces',serif;font-size:22px;font-weight:500;margin-bottom:16px;letter-spacing:-.01em;">People</h2>
+        <div class="recruitment-grid" id="people-sketches-grid"></div>
+      </div>
+
+      <div class="butterfly-section">
+        <h2 style="font-family:'Fraunces',serif;font-size:22px;font-weight:500;margin-bottom:16px;letter-spacing:-.01em;">Digital</h2>
+        <div class="recruitment-grid" id="digital-grid"></div>
+      </div>
     </div>
   </div>
-</section>
+
+  <!-- RESOURCES -->
+  <div class="window" id="win-resources">
+    <div class="win-titlebar">
+      <div class="win-dots">
+        <button class="win-btn red" onclick="closeWindow('resources')"></button>
+        <button class="win-btn yellow" onclick="closeWindow('resources')"></button>
+        <button class="win-btn green" onclick="toggleMax('resources')"></button>
+      </div>
+      <div class="win-title">Contact</div>
+    </div>
+    <div class="win-body">
+      <div class="win-crumb">04 — CONTACT</div>
+      <h1 class="win-h1" style="margin-bottom:24px;">say hi.</h1>
+      <div class="contact-links">
+        <a class="res-link" href="mailto:jyqzhang@g.ucla.edu">
+          <div class="rtxt"><div class="rt1">Email</div><div class="rt2">jyqzhang@g.ucla.edu</div></div>
+        </a>
+        <a class="res-link" href="https://www.linkedin.com/in/julia-yuqing-zhang/" target="_blank" rel="noopener">
+          <div class="rtxt"><div class="rt1">LinkedIn</div><div class="rt2">julia-yuqing-zhang</div></div>
+        </a>
+        <a class="res-link" href="https://www.instagram.com/jyqz.art/" target="_blank" rel="noopener">
+          <div class="rtxt"><div class="rt1">Instagram</div><div class="rt2">@jyqz.art</div></div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRASH -->
+  <div class="window" id="win-trash" style="width:440px;height:520px;">
+    <div class="win-titlebar">
+      <div class="win-dots">
+        <button class="win-btn red" onclick="closeWindow('trash')"></button>
+        <button class="win-btn yellow" onclick="closeWindow('trash')"></button>
+        <button class="win-btn green" onclick="toggleMax('trash')"></button>
+      </div>
+      <div class="win-title">Trash</div>
+    </div>
+    <div class="win-body">
+      <p class="win-p" style="margin-bottom:18px;">Write down something you want to let go of. Fold it up, then toss it away.</p>
+      <div class="trash-stage">
+        <div class="trash-main">
+          <div id="paperBall" class="paper-ball" onclick="tossBall()" title="tap the ball to toss it">
+            <textarea id="trashPaper" class="trash-paper" placeholder="write it here..."></textarea>
+            <svg class="paper-crease" viewBox="0 0 100 100">
+              <path d="M81.1 50 L74.3 61.7 L69.4 74.4 L57 80.8 L44.5 74.2 L30.3 74.7 L20.6 64.2 L24.1 50 L23.2 37.1 L32.7 28.3 L43.7 22.6 L56.1 23.3 L72.3 22 L76.2 37.4 Z" style="fill:#f7f1de;stroke:var(--ink);stroke-width:2" stroke-linejoin="round"/>
+              <path d="M50 50 L74.3 61.7 L69.4 74.4 Z M50 50 L69.4 74.4 L57 80.8 Z" style="fill:rgba(120,90,50,.16);stroke:none"/>
+              <path d="M50 50 L23.2 37.1 L32.7 28.3 Z M50 50 L32.7 28.3 L43.7 22.6 Z" style="fill:rgba(255,255,255,.55);stroke:none"/>
+              <path d="M40 42 L54 47 M38 58q12-4 22 5 M60 36 L67 49" style="stroke:var(--ink);stroke-width:1.1;fill:none" stroke-linecap="round" opacity=".4"/>
+            </svg>
+          </div>
+          <button id="foldBtn" class="fold-btn" onclick="foldPaper()">fold it up</button>
+          <div id="tossHint" class="toss-hint">tap the ball to toss it →</div>
+        </div>
+      </div>
+      <div class="trash-bin-wrap">
+        <svg viewBox="0 0 100 100" class="trash-bin-svg">
+          <g id="binLid" class="bin-lid">
+            <rect x="14" y="27" width="72" height="10" rx="4" style="fill:none;stroke:var(--ink);stroke-width:2.5"/>
+            <rect x="42" y="17" width="16" height="10" rx="3" style="fill:none;stroke:var(--ink);stroke-width:2.5"/>
+          </g>
+          <path d="M22 34 L78 34 L70 92 L30 92 Z" style="fill:none;stroke:var(--ink);stroke-width:2.5" stroke-linejoin="round"/>
+          <path d="M38 42 L35 84 M50 42 L50 86 M62 42 L65 84" style="stroke:var(--ink);stroke-width:1.3" opacity=".5"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="dock">
+  <div class="dock-item" data-win="about" title="About">☺</div>
+  <div class="dock-item" data-win="work" title="Media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8"/><path d="M12 16v4"/></svg></div>
+  <div class="dock-item" data-win="research" title="Research"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"/><path d="M8 15h8"/></svg></div>
+  <div class="dock-item" data-win="art" title="Playground"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 2-.9 1.6-1.9-.2-.6.2-1.3.9-1.3H16a4 4 0 0 0 4-4c0-6-3.6-10.8-8-10.8z"/><circle cx="8" cy="9" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="7" r="1.3" fill="currentColor" stroke="none"/><circle cx="16" cy="9.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="8.5" cy="14" r="1.3" fill="currentColor" stroke="none"/></svg></div>
+  <div class="dock-item" data-win="resources" title="Contact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-4 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/><circle cx="8.5" cy="11" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="11" r="1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="11" r="1" fill="currentColor" stroke="none"/></svg></div>
+  <div class="dock-sep"></div>
+  <div class="dock-item" data-win="trash" title="Trash">🗑</div>
+</div>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="if(event.target===this)closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <button class="lightbox-nav lightbox-prev" onclick="lightboxPrev()">‹</button>
+  <img id="lightboxImg" src="" alt="">
+  <button class="lightbox-nav lightbox-next" onclick="lightboxNext()">›</button>
+</div>
 
 <script>
-/* ───── DATA: work cards ───── */
+/* ───── DATA: media cards ───── */
 const works = [
-  {year:'2025', cat:'PRODUCT',     title:'fieldnote',           ic:'◆',  icCol:'#f6c83a', body:'A tiny CRM for early-stage founders. Designed the onboarding, shipped v1 in six weeks.', tags:['design','react','0→1']},
-  {year:'2024', cat:'RESEARCH',    title:'the quiet UX of waiting', ic:'◇', icCol:'#f6c83a', body:'Mixed-methods study on how people perceive loading states. 40 interviews, one essay.', tags:['research','writing']},
-  {year:'2024', cat:'BRANDING',    title:'kelp & co.',          ic:'❖',  icCol:'#f6c83a', body:'Identity system for a sustainable seaweed snack brand. Wordmark, packaging, voice.', tags:['brand','type','print']},
-  {year:'2023', cat:'INTERNSHIP',  title:'uber — growth design',ic:'◆',  icCol:'#f6c83a', body:'Two experiments shipped to riders in NA. +3.1% activation on the second flow.', tags:['design','growth']},
-  {year:'2023', cat:'SCHOOL',      title:'moodloop',            ic:'◆',  icCol:'#f6c83a', body:'A wearable concept exploring ambient affect tracking. Prototype + speculative film.', tags:['concept','hw']},
-  {year:'2022', cat:'FREELANCE',   title:'honest coffee co.',   ic:'◇',  icCol:'#f6c83a', body:'E-commerce site rebuild. 2.4× faster, 38% more conversions, much friendlier copy.', tags:['web','shopify']}
+  {
+    dateRange:'Sep 2025 – June 2026', type:'professional',
+    title:'UCLA Student Affairs', role:'Designer / Media Specialist', ic:'◆',
+    logo:{src:'all logo icons/student affairs logo.jpg', bg:'#fff'},
+    body:'@uclahousing & @uclastudentlife',
+    tags:['design','branding','social media'],
+    gallery:null,
+    whatMakesUcla:{
+      src:'file:///Users/julia.zhang/Desktop/Portfolio/media%20team/AAA%20PORTFOLIO%20UPLOADS/what%20makes%20ucla%20great.pdf'
+    },
+    wallpapers:[
+      {src:'wallpapers/campus-illustration.png', label:'Campus Illustration'},
+      {src:'wallpapers/let-there-be-light.png', label:'Let There Be Light'},
+      {src:'wallpapers/we-are-ucla-bruins.png', label:'We Are UCLA Bruins'},
+      {src:'wallpapers/ucla-path-illustration.png', label:'UCLA Path Illustration'},
+      {src:'wallpapers/fall-2025-wallpaper.png', label:'Fall 2025 Wallpaper'},
+      {src:'wallpapers/spring-2026-wallpaper.png', label:'Spring 2026 Wallpaper'}
+    ],
+    seriesTitle:'Post Series',
+    campaigns:[
+      {label:'Guess the UCLA Pokémon!', images:[
+        {src:'media team/AAA PORTFOLIO UPLOADS/namethatbuilding-16.png', label:'Guess the UCLA Pokémon — silhouette'},
+        {src:'media team/AAA PORTFOLIO UPLOADS/namethatbuilding-17.png', label:'Guess the UCLA Pokémon — reveal'}
+      ]},
+      {label:'New Year, New Bruin', images:[
+        {src:'media team/AAA PORTFOLIO UPLOADS/NYNB Promo - Post.png', label:'New Year, New Bruin — promo'},
+        {src:'media team/AAA PORTFOLIO UPLOADS/NYNB - Signage.png', label:'New Year, New Bruin — signage'}
+      ]},
+      {label:'House Tours', images:[
+        {src:'media team/AAA PORTFOLIO UPLOADS/transferhousetour 1.png', label:'House Tour — Gayley Heights'},
+        {src:'media team/AAA PORTFOLIO UPLOADS/transferhousetour 2.png', label:'House Tour — De Neve Holly'}
+      ]},
+      {label:'Event Story Coverage', images:[
+        {src:'media team/AAA PORTFOLIO UPLOADS/mt story coverage/football1.jpg', label:'Football Coverage'},
+        {src:'media team/AAA PORTFOLIO UPLOADS/mt story coverage/football3.jpg', label:'Football Coverage'},
+        {src:'media team/AAA PORTFOLIO UPLOADS/mt story coverage/hillsgottalent.jpg', label:'Hills Got Talent'},
+        {src:'media team/AAA PORTFOLIO UPLOADS/mt story coverage/sustainival1.jpg', label:'Sustainival'}
+      ]}
+    ],
+    recruitmentTitle:'More Media',
+    recruitment:[
+      {src:'media team/AAA PORTFOLIO UPLOADS/Student Conduct Town Hall.png', label:'Student Conduct Town Hall'},
+      {src:'media team/AAA PORTFOLIO UPLOADS/hugforu.png', label:'A Hug For You'},
+      {src:'media team/AAA PORTFOLIO UPLOADS/fall qtr self assessment.png', label:'Fall Quarter Self-Assessment'},
+      {src:'media team/AAA PORTFOLIO UPLOADS/winter staythru.png', label:'Winter Stay-Through'},
+      {src:'media team/AAA PORTFOLIO UPLOADS/digital detox graphic.png', label:'Digital Detox'},
+      {src:'media team/AAA PORTFOLIO UPLOADS/Future Self Final Poster.png', label:'Future Self Poster'},
+      {src:'media team/AAA PORTFOLIO UPLOADS/gratitude poster.png', label:'Gratitude Poster'},
+      {src:'media team/AAA PORTFOLIO UPLOADS/Calendar_Spring_2026_Back_Updated.png', label:'Spring 2026 Calendar'},
+      {src:'media team/AAA PORTFOLIO UPLOADS/mt valentines cards-01.png', label:'Valentines Cards'}
+    ]
+  },
+  {
+    dateRange:'Oct 2024 – Present', type:'professional',
+    title:'UCLA Residential Life', role:'Special Projects Assistant, Director of Publicity', ic:'◇',
+    logo:{src:'all logo icons/OCHC Logo.png', bg:'#fff'},
+    body:'Organizational Development, Leadership & Involvement, and On-Campus Housing Council; representing and creating community for all ResLife student staff and 14,000+ hill residents.',
+    tags:['events','branding','social'], gallery:null,
+    recruitment:[
+      {src:'ochc/hiring/OCHC 20x30 Poster.png', label:'Apply to OCHC'},
+      {src:'ochc/hiring/why ochc 1.png', label:'Why OCHC?'},
+      {src:'ochc/hiring/why ochc ashlyn.png', label:'Why OCHC — Ashlyn Sze'},
+      {src:'ochc/hiring/why ochc ben.png', label:'Why OCHC — Ben Gutierrez'},
+      {src:'ochc/hiring/why ochc maya.png', label:'Why OCHC — Maya Viramontes'},
+      {src:'ochc/hiring/why ochc 2.png', label:'Why OCHC — Apply Now'},
+      {src:'ochc/hiring/elections story 1.png', label:'OCHC Meet the Candidates'},
+      {src:'ochc/hiring/elections story 2.png', label:'Vote for your 2026-27 E-Board'},
+      {src:'ochc/hiring/rgc flyer 1.png', label:'Join the RGC'},
+      {src:'ochc/hiring/rgc flyer 2.png', label:'Apply Today — RGC'}
+    ],
+    seriesTitle:'Event Campaigns',
+    campaigns:[
+      {label:'Way Back Wednesday', images:[
+        {src:'ochc/wbw/way back wed 20x30.png', label:'Way Back Wednesday — poster'},
+        {src:'ochc/wbw/way back wed basket.png', label:'Way Back Wednesday — basket'},
+        {src:'ochc/wbw/way back wed insta.png', label:'Way Back Wednesday — Instagram'}
+      ]},
+      {label:'Casino Night', images:[
+        {src:'ochc/casino night/Casino Night - 20x30.png', label:'Casino Night — poster'},
+        {src:'ochc/casino night/Casino Night - 8.5x11.png', label:'Casino Night — flyer'},
+        {src:'ochc/casino night/Casino Night - Volunteer Poster.png', label:'Casino Night — volunteer poster'}
+      ]},
+      {label:'Escape the Waste', images:[
+        {src:'ochc/etw/etw 20x30 Poster.png', label:'Escape the Waste — poster'},
+        {src:'ochc/etw/etw Insta Post.png', label:'Escape the Waste — Instagram'}
+      ]},
+      {label:'Transfer Student Resources', images:[
+        {src:'ochc/transfer/Transfer Needs Assessment A Review.png', label:'Transfer Needs Assessment — review'},
+        {src:'ochc/transfer/tsr 1.png', label:'Transfer Student Resources — 1'},
+        {src:'ochc/transfer/tsr 3.png', label:'Transfer Student Resources — 3'},
+        {src:'ochc/transfer/tsr 4.png', label:'Transfer Student Resources — 4'}
+      ]},
+      {label:'Town Halls', images:[
+        {src:'ochc/town hall/town hall spring.png', label:'Town Hall — spring'},
+        {src:'ochc/town hall/town hall winter.png', label:'Town Hall — winter'}
+      ]},
+      {label:'Conference', images:[
+        {src:'ochc/nacurh/nacurh 1.png', label:'Conference — 1'},
+        {src:'ochc/nacurh/nacurh 2.png', label:'Conference — 2'}
+      ]},
+      {label:'Remake Market', images:[
+        {src:'ochc/remake market/remake market 20x30.png', label:'Remake Market — poster'},
+        {src:'ochc/remake market/remake market band.png', label:'Remake Market — band'},
+        {src:'ochc/remake market/remake market insta.png', label:'Remake Market — Instagram'},
+        {src:'ochc/remake market/remake market raffle prizes.png', label:'Remake Market — raffle prizes'},
+        {src:'ochc/remake market/remake market raffle rules.png', label:'Remake Market — raffle rules'}
+      ]},
+      {label:'Trash n Fashion', images:[
+        {src:"ochc/Trash N Fashion/Trash 'n' Fashion Poster (20x30in).png", label:"Trash 'n' Fashion — poster"},
+        {src:'ochc/Trash N Fashion/trashnfashion insta.png.PNG', label:"Trash 'n' Fashion — Instagram"}
+      ]}
+    ],
+    moreMediaTitle:'More Media',
+    moreMedia:[
+      {src:'ochc/dnw_resources.png', label:'De Neve West Resource List'},
+      {src:'ochc/flyer for resident resource reader.png', label:'Resident Resource Reader'},
+      {src:'ochc/Haunted Hill Posters - Large.png', label:'Haunted Hill'},
+      {src:'ochc/Denim Day.png', label:'Denim Day'},
+      {src:'ochc/sixflags.png', label:'Six Flags Trip'}
+    ],
+    yearbookPdf:'file:///Users/julia.zhang/Desktop/Portfolio/ochc/ochc%202025-26%20yearbook.pdf'
+  },
+  {
+    dateRange:'April 2024 – Present', type:'professional',
+    title:'Evanston Go Club', role:'Marketing Director', ic:'◆',
+    logo:{src:'all logo icons/Evanston Go Club logo.png', bg:'#fff'},
+    body:'Largest Midwest Go Chapter',
+    bodyImage:'EGCNMF/EGC Business Card.png',
+    tags:['marketing','design','events'], gallery:null,
+    seriesTitle:'Event Campaigns',
+    campaigns:[
+      {label:'Chicago Open 2026', images:[
+        {src:'EGCNMF/ChicagoOpen26/1.png', label:'Chicago Open 2026 — About the Event'},
+        {src:'EGCNMF/ChicagoOpen26/3.png', label:'Chicago Open 2026 — Event Experience'},
+        {src:'EGCNMF/ChicagoOpen26/6.png', label:'Chicago Open 2026 — Event Recap'},
+        {src:'EGCNMF/ChicagoOpen26/7.png', label:'Chicago Open 2026 — Final Standings'},
+        {src:'EGCNMF/ChicagoOpen26/8.png', label:'Chicago Open 2026 — Youth in Go'},
+        {src:'EGCNMF/ChicagoOpen26/9.png', label:'Chicago Open 2026 — Thank You'},
+        {src:'EGCNMF/ChicagoOpen26/Chicago Open Flyer.png', label:'Chicago Open 2026 — Event Flyer'},
+        {src:'EGCNMF/ChicagoOpen26/Chicago Rapid Infographic.png', label:'Chicago Open 2026 — Chicago Rapid'},
+        {src:'EGCNMF/ChicagoOpen26/Volunteers.png', label:'Chicago Open 2026 — Volunteer Recruitment'}
+      ]},
+      {label:'Chicago Open 2025', images:[
+        {src:'EGCNMF/ChicagoOpen25/1.png', label:'Chicago Open 2025 — Event Promotion'},
+        {src:'EGCNMF/ChicagoOpen25/2.png', label:'Chicago Open 2025 — Baduk News'},
+        {src:'EGCNMF/ChicagoOpen25/3.png', label:'Chicago Open 2025 — Event Recap'},
+        {src:'EGCNMF/ChicagoOpen25/4.png', label:'Chicago Open 2025 — Final Standings'},
+        {src:'EGCNMF/ChicagoOpen25/5.png', label:'Chicago Open 2025 — Thank You'}
+      ]},
+      {label:'Chicago Open 2024', images:[
+        {src:'EGCNMF/ChicagoOpen24/egc.PNG', label:'Chicago Open 2024 — Event Promotion'},
+        {src:'EGCNMF/ChicagoOpen24/6F7B9194-313D-4819-85E8-C9AB3AA94181.PNG', label:'Chicago Open 2024 — Tournament Recap'},
+        {src:'EGCNMF/ChicagoOpen24/4B19A88C-2E82-424B-A442-17441A4261DC.PNG', label:'Chicago Open 2024 — Sponsor & Volunteer Appreciation'}
+      ]}
+    ]
+  },
+  {
+    dateRange:'Jan 2025 – Present', type:'leadership',
+    title:'Rye International Fellowship', role:'Co-President', ic:'◆',
+    logo:{src:'all logo icons/rye logo.jpg', bg:'#fff'},
+    body:"UCLA's Premier Chinese Professional/Social Fellowship",
+    tags:['leadership','community','recruiting'], gallery:null,
+    moreMediaTitle:'Media',
+    moreMedia:[
+      {src:'rye/2425 new members.png', label:'Rye International — 2024–25 New Members'},
+      {src:'rye/f25 recruitment.png', label:'Rye International — Fall 2025 Recruitment'},
+      {src:'rye/rye f25 welcome.png', label:'Rye International — Fall 2025 Welcome'},
+      {src:'rye/Rye Grad School Panel.png', label:'Rye International — Grad School Panel'},
+      {src:'rye/rye ppt new.png', label:'Rye International — Overview Presentation'},
+      {src:'rye/rye ppt old.png', label:'Rye International — Overview Presentation, Earlier Version'},
+      {src:'rye/ryegradschoolposter.png', label:'Rye International — Grad School Guest Speaker Panel'},
+      {src:'rye/ryesharetea.png', label:'Rye International — Sharetea Fundraiser'},
+      {src:'rye/s25 recap.png', label:'Rye International — Spring 2025 Recap'},
+      {src:'rye/summerwelcoming.png', label:'Rye International — Summer Welcome Event'}
+    ]
+  },
+  {
+    dateRange:'Oct 2023 – Aug 2025', type:'leadership',
+    title:'American Collegiate Go Association', role:'President, Co-Founder', ic:'◇',
+    logo:{src:'all logo icons/acgalogo.png', bg:'#fff'},
+    body:'Only college-level Go platform in North America: 14 college chapters, 200+ active members.',
+    tags:['founder','community','events'], gallery:null,
+    campaignSections:[
+      {title:'Brand', groups:[
+        {label:'Assets', images:[
+          {src:'ACGA/Brand Assets/acga meet the team.png', label:'ACGA — Meet the Team'},
+          {src:'ACGA/Brand Assets/acgalogo.png', label:'ACGA — Logo'},
+          {src:'ACGA/Brand Assets/teachinglessons.png', label:'ACGA — Teaching Sessions'}
+        ]},
+        {label:'Recruitment', images:[
+          {src:'ACGA/Recruitment/acga interest form.png', label:'Recruitment — Interest Form'},
+          {src:'ACGA/Recruitment/acga spring25 recruitment.png', label:'Recruitment — Spring 2025'},
+          {src:'ACGA/Recruitment/acga winter25 recruitment.png', label:'Recruitment — Winter 2025'}
+        ]}
+      ]},
+      {title:'Event Campaigns', groups:[
+        {label:'Collegiate Go League', images:[
+          {src:'ACGA/Collegiate Go League/25 Spring CGL Post.png', label:'Collegiate Go League — Spring 2025'},
+          {src:'ACGA/Collegiate Go League/CGL sponsorship.png', label:'Collegiate Go League — Sponsorship'}
+        ]},
+        {label:'California Intercollegiate Go League', images:[
+          {src:'ACGA/California Intercollegiate Go League/1.png', label:'CIGL — Invitation'},
+          {src:'ACGA/California Intercollegiate Go League/2.png', label:'CIGL — Recap and Results'},
+          {src:'ACGA/California Intercollegiate Go League/3.png', label:'CIGL — Final Standings'},
+          {src:'ACGA/California Intercollegiate Go League/CIGL Certificate.png', label:'CIGL — Certificate'}
+        ]},
+        {label:'Michigan Championship', images:[
+          {src:'ACGA/Michigan Championship/22.png', label:'Michigan Championship — Save the Date'},
+          {src:'ACGA/Michigan Championship/27.png', label:'Michigan Championship — Buffet Menu'},
+          {src:'ACGA/Michigan Championship/35.png', label:'Michigan Championship — Sponsors'},
+          {src:'ACGA/Michigan Championship/36.png', label:'Michigan Championship — Registration'},
+          {src:'ACGA/Michigan Championship/37.png', label:'Michigan Championship — Schedule'},
+          {src:'ACGA/Michigan Championship/38.png', label:'Michigan Championship — Recap'},
+          {src:'ACGA/Michigan Championship/45.png', label:'Michigan Championship — Sponsor Celebration'},
+          {src:'ACGA/Michigan Championship/46.png', label:'Michigan Championship — Prizes'},
+          {src:'ACGA/Michigan Championship/MI Champ 4wks.png', label:'Michigan Championship — Four-Week Countdown'},
+          {src:'ACGA/Michigan Championship/MI Champ Main Poster.png', label:'Michigan Championship — Main Poster'}
+        ]},
+        {label:'Pilot Tournament', images:[
+          {src:'ACGA/Pilot Tournament/4.png', label:'Pilot Tournament — Registration'},
+          {src:'ACGA/Pilot Tournament/5.png', label:'Pilot Tournament — AGA Membership'},
+          {src:'ACGA/Pilot Tournament/6.png', label:'Pilot Tournament — Details and FAQ'},
+          {src:'ACGA/Pilot Tournament/7.png', label:'Pilot Tournament — Promotion'},
+          {src:'ACGA/Pilot Tournament/8.png', label:'Pilot Tournament — Prizes'},
+          {src:'ACGA/Pilot Tournament/10.png', label:'Pilot Tournament — Sign-up Instructions'},
+          {src:'ACGA/Pilot Tournament/11.png', label:'Pilot Tournament — Playing Instructions'},
+          {src:'ACGA/Pilot Tournament/12.png', label:'Pilot Tournament — Recap'},
+          {src:'ACGA/Pilot Tournament/14.png', label:'Pilot Tournament — Results'},
+          {src:'ACGA/Pilot Tournament/15.png', label:'Pilot Tournament — Sponsors'}
+        ]}
+      ]}
+    ]
+  },
+  {
+    dateRange:'Sep 2023 – June 2024', type:'professional',
+    title:'American Go Honor Society', role:'Media Marketing Manager', ic:'◆',
+    logo:{src:'AGHS/Branding/aghs logo.PNG', bg:'#fff'},
+    body:'National student-led honor society dedicated to K-12 Go players.',
+    tags:['marketing','design','events'], gallery:null,
+    seriesTitle:'Post Series',
+    campaigns:[
+      {label:'Youth of the Month', images:[
+        {src:'AGHS/FC6302FF-106C-401B-A3E9-3C61D4B87F96.PNG', label:'Youth of the Month — Introducing'},
+        {src:'AGHS/Youth of the Month/aghs yotm1.png', label:'Youth of the Month — Certificate'},
+        {src:'AGHS/Youth of the Month/aghs yotm2.png', label:'Youth of the Month — Award'}
+      ]},
+      {label:'School Team Tournament', images:[
+        {src:'AGHS/ED505E67-71DC-47BF-B0CB-32F972FC5E01.PNG', label:'School Team Tournament — Announcement'},
+        {src:'AGHS/7BF514CF-BE79-4FDF-B7E1-5F673B4117B2.PNG', label:'School Team Tournament — Results'}
+      ]},
+      {label:'Branding', images:[
+        {src:'AGHS/Branding/aghsintro.PNG', label:'AGHS — Intro'},
+        {src:'AGHS/Branding/aghsmeettheteam.PNG', label:'AGHS — Meet the Team'},
+        {src:'AGHS/Branding/newabout.PNG', label:'AGHS — About Us'}
+      ]},
+      {label:'Go Artistry Contest', images:[
+        {src:'AGHS/Go Artistry Contest/artistry1.png', label:'Go Artistry Contest — Announcement'},
+        {src:'AGHS/Go Artistry Contest/artistry2.png', label:'Go Artistry Contest — Details'}
+      ]}
+    ],
+    moreMediaTitle:'More Media',
+    moreMedia:[
+      {src:'AGHS/A99D1805-20F0-4FD8-AB47-D2F90602459D.PNG', label:'Girls Who Play Go'},
+      {src:'AGHS/02FE5613-4E32-46E2-8E36-C13CB365E95F.PNG', label:'Pair Go Tournament'},
+      {src:'AGHS/BC785E00-5B3E-4FFE-A0B2-EC2FC8901AD6.PNG', label:'Young Lions Tournament Recap'},
+      {src:'AGHS/92F31CEB-523F-4478-92FF-A2C352C8945C.PNG', label:'2024 US Go Congress'},
+      {src:'AGHS/BB7C44FB-738F-46F8-BB33-FB0FF388E760.PNG', label:'Creative Writing & Artwork Contest'},
+      {src:'AGHS/aghs socials - 39.PNG', label:'Senior Spotlight'}
+    ]
+  }
 ];
-const grid = document.getElementById('work-grid');
+
+const mediaProjectOrder = [
+  'UCLA Residential Life',
+  'UCLA Student Affairs',
+  'Rye International Fellowship',
+  'Evanston Go Club',
+  'American Collegiate Go Association',
+  'American Go Honor Society'
+];
+works.sort((a, b) => mediaProjectOrder.indexOf(a.title) - mediaProjectOrder.indexOf(b.title));
+
+const timeline = document.getElementById('work-timeline');
 works.forEach((w, i) => {
-  const el = document.createElement('div');
-  el.className = 'work-card';
-  el.dataset.idx = i;
-  el.innerHTML = `
-    <div class="top"><span>${w.year} · ${w.cat}</span><span class="icon">${w.ic}</span></div>
-    <h3>${w.title}</h3>
+  const card = document.createElement('div');
+  card.className = 'work-card';
+  card.dataset.idx = i;
+  card.innerHTML = `
+    <div class="top"><span>${w.dateRange}</span><span class="icon">${w.ic}</span></div>
+    <div class="card-logo-row">
+      <div class="org-logo" style="background:${w.logo.bg || '#fff'}">${w.logo.src ? `<img src="${w.logo.src}" alt="${w.title} logo">` : w.logo.initials}</div>
+      <h3>${w.title}</h3>
+    </div>
+    <div class="role">${w.role}</div>
     <p>${w.body}</p>
-    <div class="tags">${w.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
   `;
-  el.addEventListener('click', ()=>openProject(i));
-  grid.appendChild(el);
+  card.addEventListener('click', ()=>openProject(i));
+  timeline.appendChild(card);
 });
 
 function openProject(i){
   const w = works[i];
-  document.getElementById('gal-crumb').textContent = `01 — WORK / ${w.title.toUpperCase()}`;
+  document.getElementById('gal-crumb').textContent = `MEDIA / ${w.title.toUpperCase()}`;
   document.getElementById('gal-title').textContent = w.title;
-  show('gallery');
-}
+  const galDesc = document.getElementById('gal-desc');
+  if(w.bodyImage){
+    galDesc.innerHTML = `<img src="${w.bodyImage}" alt="${w.title} business card" class="business-card-img">`;
+  } else {
+    galDesc.textContent = w.body;
+  }
 
-/* ───── Page nav ───── */
-const pages = ['home','work','art','playground','gallery'];
-function show(p){
-  pages.forEach(x=>{
-    const el = document.getElementById('page-'+x);
-    if(el) el.classList.toggle('hidden', x!==p);
-  });
-  document.querySelectorAll('nav li').forEach(li=>{
-    const target = p==='gallery' ? 'work' : p;
-    li.classList.toggle('active', li.dataset.page===target);
-  });
-  window.scrollTo({top:0,behavior:'instant'});
+  const galHighlightsSec = document.getElementById('gal-highlights-section');
+  const galGrid = document.getElementById('gal-grid');
+  galGrid.innerHTML = '';
+  const imgs = w.gallery && w.gallery.images ? w.gallery.images : [];
+  if(imgs.length){
+    galHighlightsSec.style.display = '';
+    imgs.forEach(img => {
+      const item = document.createElement('div');
+      item.className = 'gallery-item';
+      item.innerHTML = `
+        <div class="thumb" style="position:relative;">
+          <img src="${img.src}" alt="${img.label}"
+            style="width:100%;height:auto;display:block;"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div style="display:none;position:absolute;inset:0;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:11px;color:var(--muted);text-align:center;padding:16px;background:var(--bg-2);">
+            <span style="font-size:26px;line-height:1;">▨</span>
+            <span>${img.label}</span>
+            <span style="opacity:.55;font-size:10px;">coming soon</span>
+          </div>
+          <div class="cap">${img.label}</div>
+        </div>
+        <div class="info">${img.label}</div>
+      `;
+      galGrid.appendChild(item);
+    });
+  } else {
+    galHighlightsSec.style.display = 'none';
+  }
+
+  const wmSec = document.getElementById('gal-whatmakesucla');
+  const wmFrame = document.getElementById('whatMakesUclaFrame');
+  if(w.whatMakesUcla){
+    wmSec.style.display = '';
+    wmFrame.src = w.whatMakesUcla.src;
+  } else {
+    wmSec.style.display = 'none';
+    wmFrame.src = '';
+  }
+
+  const wpSec = document.getElementById('gal-wallpapers');
+  const wpGrid = document.getElementById('wallpaper-grid');
+  wpGrid.innerHTML = '';
+  if(w.wallpapers && w.wallpapers.length){
+    wpSec.style.display = '';
+    w.wallpapers.forEach(wp=>{
+      const thumb = document.createElement('div');
+      thumb.className = 'wallpaper-thumb';
+      thumb.innerHTML = `
+        <img src="${wp.src}" alt="${wp.label}"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="wp-fallback">
+          <span style="font-size:22px;line-height:1;">▨</span>
+          <span>${wp.label}</span>
+          <span style="opacity:.55;">coming soon</span>
+        </div>
+      `;
+      thumb.addEventListener('click', ()=>openLightbox(w.wallpapers, w.wallpapers.indexOf(wp)));
+      wpGrid.appendChild(thumb);
+    });
+  } else {
+    wpSec.style.display = 'none';
+  }
+
+  const campSec = document.getElementById('gal-campaigns');
+  const campContainer = document.getElementById('campaigns-container');
+  campContainer.innerHTML = '';
+  function renderCampaignGroup(row, camp){
+    const wrap = document.createElement('div');
+    const title = document.createElement('div');
+    title.style.cssText = "font-family:'Fraunces',serif;font-style:italic;font-size:14px;color:var(--soft);margin-bottom:8px;";
+    title.textContent = camp.label;
+    wrap.appendChild(title);
+    const grid = document.createElement('div');
+    grid.className = 'recruitment-grid';
+    camp.images.forEach(im=>{
+      const thumb = document.createElement('div');
+      thumb.className = 'recruitment-thumb';
+      thumb.innerHTML = `
+        <img src="${im.src}" alt="${im.label}"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="rc-fallback">
+          <span style="font-size:16px;line-height:1;">▨</span>
+          <span>${im.label}</span>
+        </div>
+      `;
+      thumb.addEventListener('click', ()=>openLightbox(camp.images, camp.images.indexOf(im)));
+      grid.appendChild(thumb);
+    });
+    wrap.appendChild(grid);
+    row.appendChild(wrap);
+  }
+  function appendCampaignSection(title, groups){
+    const h2 = document.createElement('h2');
+    h2.textContent = title;
+    campContainer.appendChild(h2);
+    const row = document.createElement('div');
+    row.className = 'campaigns-row';
+    campContainer.appendChild(row);
+    groups.forEach(camp=>renderCampaignGroup(row, camp));
+  }
+  if(w.campaignSections && w.campaignSections.length){
+    campSec.style.display = '';
+    w.campaignSections.forEach(section=>appendCampaignSection(section.title, section.groups));
+  } else if(w.campaigns && w.campaigns.length){
+    campSec.style.display = '';
+    appendCampaignSection(w.seriesTitle || 'Series', w.campaigns);
+  } else {
+    campSec.style.display = 'none';
+  }
+
+  const rcSec = document.getElementById('gal-recruitment');
+  const rcGrid = document.getElementById('recruitment-grid');
+  const rcTitle = document.getElementById('recruitment-title');
+  rcGrid.innerHTML = '';
+  if(w.recruitment && w.recruitment.length){
+    rcSec.style.display = '';
+    rcTitle.textContent = w.recruitmentTitle || 'Recruitment Campaigns';
+    w.recruitment.forEach(rc=>{
+      const thumb = document.createElement('div');
+      thumb.className = 'recruitment-thumb';
+      thumb.innerHTML = `
+        <img src="${rc.src}" alt="${rc.label}"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="rc-fallback">
+          <span style="font-size:16px;line-height:1;">▨</span>
+          <span>${rc.label}</span>
+        </div>
+      `;
+      thumb.addEventListener('click', ()=>openLightbox(w.recruitment, w.recruitment.indexOf(rc)));
+      rcGrid.appendChild(thumb);
+    });
+  } else {
+    rcSec.style.display = 'none';
+  }
+
+  const mmSec = document.getElementById('gal-moremedia');
+  const mmGrid = document.getElementById('moremedia-grid');
+  const mmTitle = document.getElementById('moremedia-title');
+  mmGrid.innerHTML = '';
+  if(w.moreMedia && w.moreMedia.length){
+    mmSec.style.display = '';
+    mmTitle.textContent = w.moreMediaTitle || 'More Media';
+    w.moreMedia.forEach(mm=>{
+      const thumb = document.createElement('div');
+      thumb.className = 'recruitment-thumb';
+      thumb.innerHTML = `
+        <img src="${mm.src}" alt="${mm.label}"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="rc-fallback">
+          <span style="font-size:16px;line-height:1;">▨</span>
+          <span>${mm.label}</span>
+        </div>
+      `;
+      thumb.addEventListener('click', ()=>openLightbox(w.moreMedia, w.moreMedia.indexOf(mm)));
+      mmGrid.appendChild(thumb);
+    });
+  } else {
+    mmSec.style.display = 'none';
+  }
+
+  const ybSec = document.getElementById('gal-yearbook');
+  const ybFrame = document.getElementById('yearbookFrame');
+  if(w.yearbookPdf){
+    ybSec.style.display = '';
+    ybFrame.src = w.yearbookPdf;
+  } else {
+    ybSec.style.display = 'none';
+    ybFrame.src = '';
+  }
+
+  document.getElementById('work-list-view').style.display = 'none';
+  document.getElementById('work-detail-view').style.display = '';
+  document.getElementById('win-work').querySelector('.win-body').scrollTop = 0;
 }
-document.querySelectorAll('[data-page]').forEach(el=>{
-  el.addEventListener('click', e=>{ e.preventDefault(); show(el.dataset.page); });
+let lightboxList = [];
+let lightboxIndex = 0;
+function openLightbox(list, index){
+  lightboxList = list;
+  lightboxIndex = index;
+  showLightboxImage();
+  document.getElementById('lightbox').classList.add('open');
+}
+function showLightboxImage(){
+  const item = lightboxList[lightboxIndex];
+  if(!item) return;
+  const img = document.getElementById('lightboxImg');
+  img.src = item.src;
+  img.alt = item.label || '';
+  const multi = lightboxList.length > 1;
+  document.querySelector('.lightbox-prev').style.display = multi ? '' : 'none';
+  document.querySelector('.lightbox-next').style.display = multi ? '' : 'none';
+}
+function lightboxNext(){
+  if(lightboxList.length < 2) return;
+  lightboxIndex = (lightboxIndex + 1) % lightboxList.length;
+  showLightboxImage();
+}
+function lightboxPrev(){
+  if(lightboxList.length < 2) return;
+  lightboxIndex = (lightboxIndex - 1 + lightboxList.length) % lightboxList.length;
+  showLightboxImage();
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+}
+document.getElementById('research-section-host').appendChild(document.getElementById('research-section'));
+document.querySelectorAll('[data-research-poster]').forEach(poster=>{
+  poster.addEventListener('click', ()=>openLightbox([
+    {src:'VR_Imitation Psi Chi Poster-2.png', label:'Does Speech Imitation Enhance Voice Recognition research poster'}
+  ], 0));
 });
-document.querySelectorAll('[data-go]').forEach(el=>{
-  el.addEventListener('click', e=>{ e.preventDefault(); show(el.dataset.go); });
+document.addEventListener('keydown', e=>{
+  if(!document.getElementById('lightbox').classList.contains('open')) return;
+  if(e.key === 'Escape') closeLightbox();
+  if(e.key === 'ArrowRight') lightboxNext();
+  if(e.key === 'ArrowLeft') lightboxPrev();
 });
 document.querySelectorAll('[data-back]').forEach(el=>{
-  el.addEventListener('click', e=>{ e.preventDefault(); show('work'); });
+  el.addEventListener('click', e=>{
+    e.preventDefault();
+    document.getElementById('work-detail-view').style.display = 'none';
+    document.getElementById('work-list-view').style.display = '';
+  });
 });
 
-/* ───── Physics labels ───── */
-(function(){
-  const container = document.getElementById('physics');
-  if(!container || typeof Matter === 'undefined') return; // nothing to animate, bail
-  const { Engine, Render, Runner, World, Bodies, Body, Mouse, MouseConstraint } = Matter;
-  const labels = Array.from(container.querySelectorAll('.label'));
-  if(!labels.length) return;
+/* ───── Window manager ───── */
+let zTop = 100;
 
-  let w = container.clientWidth;
-  let h = container.clientHeight;
-
-  const engine = Engine.create({
-    enableSleeping:false,
-    gravity:{x:0, y:0.7}
-  });
-  const world = engine.world;
-
-  const T = 200;
-  const wallOpts = { isStatic:true, render:{visible:false} };
-  const walls = [
-    Bodies.rectangle(w/2, -T/2, w*2, T, wallOpts),
-    Bodies.rectangle(w/2, h+T/2, w*2, T, wallOpts),
-    Bodies.rectangle(-T/2, h/2, T, h*2, wallOpts),
-    Bodies.rectangle(w+T/2, h/2, T, h*2, wallOpts),
-  ];
-  World.add(world, walls);
-
-  const bodies = labels.map((el, i) => {
-    el.style.visibility='hidden';
-    el.style.position='absolute';
-    el.style.left='-9999px';
-    document.body.appendChild(el);
-    const r = el.getBoundingClientRect();
-    container.appendChild(el);
-    const width = r.width || 100, height = r.height || 40;
-    const x = 80 + Math.random()*(w-160);
-    const y = -50 - i*70 - Math.random()*120;
-    let body;
-    if(el.dataset.shape === 'circle'){
-      body = Bodies.circle(x, y, height/2, {
-        restitution:0.55, friction:0.05, frictionAir:0.012, density:0.0018
-      });
-    } else {
-      body = Bodies.rectangle(x, y, width, height, {
-        restitution:0.5, friction:0.08, frictionAir:0.014, density:0.0015,
-        chamfer:{radius:height/2}
-      });
-    }
-    Body.setAngularVelocity(body, (Math.random()-0.5)*0.06);
-    body.el = el;
-    return body;
-  });
-  World.add(world, bodies);
-
-  const mouse = Mouse.create(container);
-  const mc = MouseConstraint.create(engine, {
-    mouse, constraint:{stiffness:0.18, angularStiffness:0, render:{visible:false}}
-  });
-  World.add(world, mc);
-  ['mousewheel','DOMMouseScroll','wheel'].forEach(ev=>{
-    mouse.element.removeEventListener(ev, mouse.mousewheel);
-  });
-
-  function sync(){
-    bodies.forEach(b=>{
-      const el = b.el;
-      el.style.visibility='visible';
-      el.style.left = b.position.x+'px';
-      el.style.top  = b.position.y+'px';
-      el.style.transform = `translate(-50%,-50%) rotate(${b.angle}rad)`;
-    });
-    requestAnimationFrame(sync);
+function openWindow(id){
+  const el = document.getElementById('win-'+id);
+  if(!el) return;
+  if(!el.classList.contains('open')){
+    positionWindow(el, id);
   }
-  sync();
-  Matter.Runner.run(Matter.Runner.create(), engine);
+  el.classList.add('open');
+  focusWindow(el);
+}
 
-  let rTimer;
-  window.addEventListener('resize',()=>{
-    clearTimeout(rTimer);
-    rTimer = setTimeout(()=>{
-      const nw = container.clientWidth, nh = container.clientHeight;
-      Body.setPosition(walls[0], {x:nw/2, y:-T/2});
-      Body.setPosition(walls[1], {x:nw/2, y:nh+T/2});
-      Body.setPosition(walls[2], {x:-T/2, y:nh/2});
-      Body.setPosition(walls[3], {x:nw+T/2, y:nh/2});
-      w=nw; h=nh;
-    }, 120);
+function positionWindow(el, id){
+  const margin = 16;
+  const gap = 26;
+  const menubarH = 34;
+
+  if(id === 'trash'){
+    el.style.left = Math.max(margin, window.innerWidth/2 - 170) + 'px';
+    el.style.top  = Math.max(margin, window.innerHeight/2 - 150 - menubarH) + 'px';
+    return;
+  }
+
+  const w = el.style.width ? parseFloat(el.style.width) : el.offsetWidth || 640;
+  const h = el.style.height ? parseFloat(el.style.height) : el.offsetHeight || 560;
+
+  const others = Array.from(document.querySelectorAll('.window.open')).filter(o => o !== el);
+  if(!others.length){
+    el.style.left = '150px';
+    el.style.top = '50px';
+    return;
+  }
+
+  // reference = the currently topmost (highest z-index) open window
+  let ref = others[0];
+  others.forEach(o => {
+    if(parseInt(o.style.zIndex || 0, 10) > parseInt(ref.style.zIndex || 0, 10)) ref = o;
+  });
+  const r = ref.getBoundingClientRect();
+  const refLeft = r.left, refTop = r.top - menubarH, refRight = r.right, refWidth = r.width;
+
+  let left, top = refTop;
+  const spaceRight = window.innerWidth - margin - refRight;
+  const spaceLeft = refLeft - margin;
+
+  if(spaceRight >= w + gap){
+    left = refRight + gap;
+  } else if(spaceLeft >= w + gap){
+    left = refLeft - gap - w;
+  } else {
+    // no room to either side — cascade diagonally instead of stacking exactly on top
+    left = refLeft + 40;
+    top = refTop + 40;
+  }
+
+  left = Math.max(margin, Math.min(left, window.innerWidth - w - margin));
+  top = Math.max(margin, Math.min(top, window.innerHeight - menubarH - h - margin));
+
+  el.style.left = left + 'px';
+  el.style.top = top + 'px';
+}
+function closeWindow(id){
+  document.getElementById('win-'+id).classList.remove('open');
+}
+function toggleMax(id){
+  document.getElementById('win-'+id).classList.toggle('maximized');
+}
+
+/* ───── Trash: write, fold, toss ───── */
+function foldPaper(){
+  const ball = document.getElementById('paperBall');
+  const btn = document.getElementById('foldBtn');
+  const hint = document.getElementById('tossHint');
+  ball.classList.add('folded');
+  btn.style.display = 'none';
+  setTimeout(()=>{ hint.classList.add('show'); }, 500);
+}
+function tossBall(){
+  const ball = document.getElementById('paperBall');
+  if(!ball.classList.contains('folded') || ball.classList.contains('tossing')) return;
+  const bin = document.querySelector('.trash-bin-wrap');
+  const br = ball.getBoundingClientRect();
+  const tr = bin.getBoundingClientRect();
+  const dx = (tr.left + tr.width/2) - (br.left + br.width/2);
+  const dy = (tr.top + tr.height*0.55) - (br.top + br.height/2);
+  ball.style.setProperty('--dx', dx+'px');
+  ball.style.setProperty('--dy', dy+'px');
+  ball.classList.add('tossing');
+  document.getElementById('binLid').classList.add('flip');
+  document.getElementById('tossHint').classList.remove('show');
+  setTimeout(()=>{
+    ball.classList.remove('tossing','folded');
+    ball.style.removeProperty('--dx');
+    ball.style.removeProperty('--dy');
+    document.getElementById('binLid').classList.remove('flip');
+    document.getElementById('trashPaper').value = '';
+    document.getElementById('foldBtn').style.display = '';
+  }, 660);
+}
+function focusWindow(el){
+  zTop++;
+  el.style.zIndex = zTop;
+}
+document.querySelectorAll('.window').forEach(win=>{
+  win.addEventListener('mousedown', ()=>focusWindow(win));
+  const bar = win.querySelector('.win-titlebar');
+  bar.addEventListener('mousedown', e=>{
+    if(e.target.closest('.win-btn') || win.classList.contains('maximized')) return;
+    focusWindow(win);
+    const rect = win.getBoundingClientRect();
+    const dx = e.clientX - rect.left, dy = e.clientY - rect.top;
+    function onMove(ev){
+      win.style.left = Math.max(0, ev.clientX - dx) + 'px';
+      win.style.top  = Math.max(0, ev.clientY - dy - 34) + 'px';
+    }
+    function onUp(){
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
   });
 
-  setTimeout(()=>{
-    bodies.forEach(b=>Body.applyForce(b, b.position, {x:(Math.random()-0.5)*0.03, y:0.005}));
-  }, 300);
+  ['left','right','top','bottom'].forEach(side=>{
+    const handle = document.createElement('div');
+    handle.className = 'resize-handle resize-'+side;
+    win.appendChild(handle);
+    handle.addEventListener('mousedown', e=>{
+      if(win.classList.contains('maximized')) return;
+      e.stopPropagation();
+      e.preventDefault();
+      focusWindow(win);
+      const rect = win.getBoundingClientRect();
+      const startX = e.clientX, startY = e.clientY;
+      const startWidth = rect.width, startHeight = rect.height;
+      const startLeft = rect.left, startTop = rect.top - 34;
+      const minWidth = 280, minHeight = 180;
+      function onMove(ev){
+        const dx = ev.clientX - startX;
+        const dy = ev.clientY - startY;
+        if(side === 'right'){
+          win.style.width = Math.max(minWidth, startWidth + dx) + 'px';
+        } else if(side === 'left'){
+          const newWidth = Math.max(minWidth, startWidth - dx);
+          win.style.width = newWidth + 'px';
+          win.style.left = (startLeft + (startWidth - newWidth)) + 'px';
+        } else if(side === 'bottom'){
+          win.style.height = Math.max(minHeight, startHeight + dy) + 'px';
+        } else if(side === 'top'){
+          const newHeight = Math.max(minHeight, startHeight - dy);
+          win.style.height = newHeight + 'px';
+          win.style.top = (startTop + (startHeight - newHeight)) + 'px';
+        }
+      }
+      function onUp(){
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  });
+});
+
+/* ───── Desktop icons: click to select, click again to open ───── */
+document.querySelectorAll('.dicon').forEach(icon=>{
+  icon.addEventListener('click', e=>{
+    e.stopPropagation();
+    const wasSelected = icon.classList.contains('selected');
+    document.querySelectorAll('.dicon.selected').forEach(d=>d.classList.remove('selected'));
+    if(wasSelected){
+      openWindow(icon.dataset.win);
+    } else {
+      icon.classList.add('selected');
+    }
+  });
+  icon.addEventListener('dblclick', e=>{
+    e.stopPropagation();
+    openWindow(icon.dataset.win);
+  });
+});
+document.getElementById('desktop').addEventListener('click', ()=>{
+  document.querySelectorAll('.dicon.selected').forEach(d=>d.classList.remove('selected'));
+});
+document.querySelectorAll('.dock-item').forEach(item=>{
+  item.addEventListener('click', ()=>openWindow(item.dataset.win));
+});
+
+/* ───── Menu bar clock ───── */
+function updateClock(){
+  const now = new Date();
+  const opts = {weekday:'short', month:'short', day:'numeric'};
+  const dateStr = now.toLocaleDateString('en-US', opts);
+  const timeStr = now.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+  document.getElementById('mbClock').textContent = `${dateStr}  ${timeStr}`;
+}
+updateClock();
+setInterval(updateClock, 15000);
+
+/* ───── Menu bar: dropdowns ───── */
+(function(){
+  const wraps = document.querySelectorAll('.menu-item-wrap');
+  wraps.forEach(wrap=>{
+    const item = wrap.querySelector('.menu-item');
+    const dropdown = wrap.querySelector('.menu-dropdown');
+    item.addEventListener('click', e=>{
+      e.stopPropagation();
+      const isOpen = wrap.classList.contains('open');
+      wraps.forEach(w=>{ w.classList.remove('open'); w.querySelector('.menu-dropdown').classList.remove('open'); });
+      if(!isOpen){ wrap.classList.add('open'); dropdown.classList.add('open'); }
+    });
+  });
+  document.addEventListener('click', ()=>{
+    wraps.forEach(w=>{ w.classList.remove('open'); w.querySelector('.menu-dropdown').classList.remove('open'); });
+  });
 })();
+
+/* ───── View menu: zoom ───── */
+(function(){
+  const zoomRoot = document.getElementById('zoomRoot');
+  let zoomLevel = 1;
+  function applyZoom(){ zoomRoot.style.zoom = zoomLevel; }
+  const zoomInBtn = document.getElementById('zoomInBtn');
+  const zoomOutBtn = document.getElementById('zoomOutBtn');
+  if(zoomInBtn) zoomInBtn.addEventListener('click', ()=>{ zoomLevel = Math.min(1.6, +(zoomLevel + 0.1).toFixed(2)); applyZoom(); });
+  if(zoomOutBtn) zoomOutBtn.addEventListener('click', ()=>{ zoomLevel = Math.max(0.6, +(zoomLevel - 0.1).toFixed(2)); applyZoom(); });
+})();
+
+/* ───── Edit menu: color palette ───── */
+(function(){
+  document.querySelectorAll('#menuEdit .menu-dropdown-item').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const theme = btn.dataset.theme;
+      if(theme === 'default'){ document.documentElement.removeAttribute('data-theme'); }
+      else{ document.documentElement.setAttribute('data-theme', theme); }
+    });
+  });
+})();
+
+/* ───── File menu: save as screenshot ───── */
+(function(){
+  const btn = document.getElementById('saveAsBtn');
+  if(!btn) return;
+  btn.addEventListener('click', ()=>{
+    if(typeof html2canvas !== 'function'){ return; }
+    btn.textContent = 'Capturing…';
+    html2canvas(document.body, {backgroundColor:null, useCORS:true}).then(canvas=>{
+      const link = document.createElement('a');
+      link.download = 'julia-portfolio.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      btn.textContent = 'Save As… (screenshot)';
+    }).catch(()=>{ btn.textContent = 'Save As… (screenshot)'; });
+  });
+})();
+
+/* ───── decorative clouds ───── */
+(function(){
+  const wp = document.getElementById('wallpaper');
+  const specs = [
+    {w:260,h:90,x:'6%',y:'10%',o:.5},
+    {w:340,h:110,x:'62%',y:'6%',o:.4},
+    {w:200,h:70,x:'80%',y:'28%',o:.35},
+    {w:220,h:80,x:'20%',y:'70%',o:.3},
+  ];
+  specs.forEach(s=>{
+    const c = document.createElement('div');
+    c.className = 'cloud';
+    c.style.width = s.w+'px'; c.style.height = s.h+'px';
+    c.style.left = s.x; c.style.top = s.y; c.style.opacity = s.o;
+    wp.appendChild(c);
+  });
+})();
+
+/* ───── Sketches: photobooth strip click-to-enlarge ───── */
+(function(){
+  const sketches = [{src:'sketches/sketches.png', label:'Sketchbook: archery, waterfall, and roses'}];
+  const stripImg = document.querySelector('.strip-img');
+  if(stripImg) stripImg.addEventListener('click', ()=> openLightbox(sketches, 0));
+})();
+
+/* ───── Butterflies: draggable heart-outline collage ───── */
+(function(){
+  const tiles = [
+    {src:'butterflies/thumbs/IMG_3287.png', label:'Butterfly artwork 1', left:195, top:86,  w:60, h:53, rot:-6},
+    {src:'butterflies/thumbs/IMG_9184.png', label:'Butterfly artwork 2', left:201, top:70,  w:56, h:49, rot:5},
+    {src:'butterflies/thumbs/IMG_3446.png', label:'Butterfly artwork 3', left:222, top:32,  w:59, h:52, rot:-4},
+    {src:'butterflies/thumbs/IMG_9235.png', label:'Butterfly artwork 4', left:272, top:7,   w:55, h:48, rot:7},
+    {src:'butterflies/thumbs/IMG_3445.png', label:'Butterfly artwork 5', left:330, top:12,  w:58, h:51, rot:-5},
+    {src:'butterflies/butterflymoonsketch.PNG', label:'Butterfly moon sketch', left:375, top:53, w:61, h:54, rot:4},
+    {src:'butterflies/thumbs/p1017867.png', label:'Butterfly artwork 6', left:389, top:116, w:54, h:48, rot:-7},
+    {src:'butterflies/thumbs/IMG_8417.png', label:'Butterfly artwork 7', left:356, top:174, w:60, h:53, rot:-6},
+    {src:'butterflies/thumbs/IMG_6997.png', label:'Butterfly artwork 8', left:302, top:231, w:56, h:49, rot:5},
+    {src:'butterflies/thumbs/4a4f3c0fe93c840d33c3c32ca54b3b5c.png', label:'Butterfly artwork 9', left:244, top:279, w:59, h:52, rot:-4},
+    {src:'butterflies/thumbs/IMG_7120.png', label:'Butterfly artwork 10', left:210, top:323, w:55, h:48, rot:7},
+    {src:'butterflies/illustratorbutterflyblack.png', label:'Butterfly wings — black', left:196, top:347, w:58, h:51, rot:-5},
+    {src:'butterflies/thumbs/IMG_1800.png', label:'Butterfly artwork 11', left:194, top:346, w:61, h:54, rot:4},
+    {src:'butterflies/thumbs/IMG_0528.png', label:'Butterfly artwork 12', left:186, top:323, w:54, h:48, rot:-7},
+    {src:'butterflies/thumbs/IMG_9927.png', label:'Butterfly artwork 13', left:147, top:279, w:60, h:53, rot:-6},
+    {src:'butterflies/thumbs/IMG_6023.png', label:'Butterfly artwork 14', left:92,  top:231, w:56, h:49, rot:5},
+    {src:'butterflies/thumbs/IMG_6022.png', label:'Butterfly artwork 15', left:35,  top:175, w:59, h:52, rot:-4},
+    {src:'butterflies/illustratorbutterflyblue.png', label:'Butterfly wings — blue', left:7, top:116, w:55, h:48, rot:7},
+    {src:'butterflies/thumbs/IMG_0731.png', label:'Butterfly artwork 16', left:16,  top:54,  w:58, h:51, rot:-5},
+    {src:'butterflies/thumbs/IMG_9628.png', label:'Butterfly artwork 17', left:60,  top:11,  w:61, h:54, rot:4},
+    {src:'butterflies/thumbs/IMG_1705.png', label:'Butterfly artwork 18', left:123, top:7,   w:54, h:48, rot:-7},
+    {src:'butterflies/thumbs/IMG_3329.png', label:'Butterfly artwork 19', left:168, top:31,  w:60, h:53, rot:-6},
+    {src:'butterflies/thumbs/IMG_3465.png', label:'Butterfly artwork 20', left:193, top:70,  w:56, h:49, rot:5}
+  ];
+  const stage = document.getElementById('butterflyStage');
+  if(!stage) return;
+  tiles.forEach(t=>{
+    const el = document.createElement('div');
+    el.className = 'butterfly-tile';
+    el.style.left = t.left + 'px';
+    el.style.top = t.top + 'px';
+    el.style.width = t.w + 'px';
+    el.style.height = t.h + 'px';
+    el.style.transform = `rotate(${t.rot}deg)`;
+    el.innerHTML = `<img src="${t.src}" alt="${t.label}">`;
+    stage.appendChild(el);
+
+    function startDrag(cx, cy){
+      let moved = false;
+      el.classList.add('dragging');
+      stage.appendChild(el);
+      const origLeft = parseFloat(el.style.left), origTop = parseFloat(el.style.top);
+      function move(x, y){
+        if(Math.abs(x - cx) > 4 || Math.abs(y - cy) > 4) moved = true;
+        el.style.left = (origLeft + x - cx) + 'px';
+        el.style.top = (origTop + y - cy) + 'px';
+      }
+      function onMouseMove(ev){ move(ev.clientX, ev.clientY); }
+      function onTouchMove(ev){ const t0 = ev.touches[0]; move(t0.clientX, t0.clientY); ev.preventDefault(); }
+      function end(){
+        el.classList.remove('dragging');
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', end);
+        document.removeEventListener('touchmove', onTouchMove);
+        document.removeEventListener('touchend', end);
+        if(!moved) openLightbox(tiles, tiles.indexOf(t));
+      }
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', end);
+      document.addEventListener('touchmove', onTouchMove, {passive:false});
+      document.addEventListener('touchend', end);
+    }
+    el.addEventListener('mousedown', e=>{ e.preventDefault(); startDrag(e.clientX, e.clientY); });
+    el.addEventListener('touchstart', e=>{ const t0 = e.touches[0]; startDrag(t0.clientX, t0.clientY); }, {passive:true});
+  });
+})();
+
+/* People Sketches */
+(function(){
+  const sketches = [
+    {src:'people sketches/IMG_3519.PNG', label:'Portrait sketch 1'},
+    {src:'people sketches/IMG_3522.PNG', label:'Portrait sketch 2'},
+    {src:'people sketches/IMG_3523.PNG', label:'Portrait sketch 3'},
+    {src:'people sketches/IMG_3524.PNG', label:'Portrait sketch 4'},
+    {src:'people sketches/IMG_3525.PNG', label:'Portrait sketch 5'},
+    {src:'people sketches/IMG_3526.PNG', label:'Portrait sketch 6'},
+    {src:'people sketches/IMG_3739.PNG', label:'Portrait sketch 7'},
+    {src:'people sketches/IMG_3740.PNG', label:'Portrait sketch 8'},
+    {src:'people sketches/IMG_3742.PNG', label:'Portrait sketch 9'},
+    {src:'people sketches/IMG_5523.PNG', label:'Portrait sketch 10'},
+    {src:'people sketches/IMG_5526.PNG', label:'Portrait sketch 11'},
+    {src:'people sketches/IMG_5529.PNG', label:'Portrait sketch 12'}
+  ];
+  const grid = document.getElementById('people-sketches-grid');
+  if(!grid) return;
+  sketches.forEach(s=>{
+    const thumb = document.createElement('div');
+    thumb.className = 'recruitment-thumb';
+    thumb.innerHTML = `
+      <img src="${s.src}" alt="${s.label}"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="rc-fallback">
+        <span style="font-size:16px;line-height:1;">▨</span>
+        <span>${s.label}</span>
+      </div>
+    `;
+    thumb.addEventListener('click', ()=>openLightbox(sketches, sketches.indexOf(s)));
+    grid.appendChild(thumb);
+  });
+})();
+
+/* Color Flipbook: cards flip vertically like a paper calendar */
+(function(){
+  const pages = [
+    {src:'digital playground/cards/cards-03.png', label:'Card design — blue 1'},
+    {src:'digital playground/cards/cards-04.png', label:'Card design — blue 2'},
+    {src:'digital playground/cards/cards-01.png', label:'Card design — red 1'},
+    {src:'digital playground/cards/cards-02.png', label:'Card design — red 2'},
+    {src:'digital playground/cards/cards-05.png', label:'Card design — yellow 1'},
+    {src:'digital playground/cards/cards-06.png', label:'Card design — yellow 2'}
+  ];
+  const container = document.getElementById('flipbookPages');
+  const counter = document.getElementById('flipbookCounter');
+  if(!container) return;
+  const n = pages.length;
+  let current = 0;
+  const els = pages.map((p,i)=>{
+    const el = document.createElement('div');
+    el.className = 'flipbook-page';
+    el.style.zIndex = n - i;
+    el.innerHTML = `<img src="${p.src}" alt="${p.label}">`;
+    container.appendChild(el);
+    return el;
+  });
+  const edgeLeft = document.createElement('div');
+  edgeLeft.className = 'flipbook-edge left';
+  edgeLeft.setAttribute('aria-label', 'Previous card');
+  const edgeRight = document.createElement('div');
+  edgeRight.className = 'flipbook-edge right';
+  edgeRight.setAttribute('aria-label', 'Next card');
+  container.appendChild(edgeLeft);
+  container.appendChild(edgeRight);
+  function render(){
+    els.forEach((el,i)=>{
+      if(i < current) el.style.transform = 'rotateY(-180deg)';
+      else el.style.removeProperty('transform');
+    });
+    counter.textContent = `${current+1} / ${n}`;
+  }
+  function next(){ if(current < n-1){ current++; render(); } }
+  function prev(){ if(current > 0){ current--; render(); } }
+  edgeLeft.addEventListener('click', prev);
+  edgeRight.addEventListener('click', next);
+  document.addEventListener('keydown', e=>{
+    const lightbox = document.getElementById('lightbox');
+    if(lightbox && lightbox.classList.contains('open')) return;
+    const artWin = document.getElementById('win-art');
+    if(!artWin || !artWin.classList.contains('open')) return;
+    if(e.key === 'ArrowRight') next();
+    if(e.key === 'ArrowLeft') prev();
+  });
+  render();
+})();
+
+/* Digital */
+(function(){
+  const items = [
+    {src:'digital playground/0201-03.png', label:'Digital artwork 1'},
+    {src:'digital playground/0201-04.png', label:'Digital artwork 2'},
+    {src:'digital playground/0201-06.png', label:'Digital artwork 3'},
+    {src:'digital playground/0201-07.png', label:'Digital artwork 4'},
+    {src:'digital playground/greenblack.png', label:'Digital artwork 5'},
+    {src:'digital playground/yearstoremember.png', label:'Digital artwork 6'}
+  ];
+  const grid = document.getElementById('digital-grid');
+  if(!grid) return;
+  items.forEach(s=>{
+    const thumb = document.createElement('div');
+    thumb.className = 'recruitment-thumb';
+    thumb.innerHTML = `
+      <img src="${s.src}" alt="${s.label}"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="rc-fallback">
+        <span style="font-size:16px;line-height:1;">▨</span>
+        <span>${s.label}</span>
+      </div>
+    `;
+    thumb.addEventListener('click', ()=>openLightbox(items, items.indexOf(s)));
+    grid.appendChild(thumb);
+  });
+})();
+
+/* open About by default so the desktop isn't empty on load */
+openWindow('about');
 </script>
 </body>
 </html>
