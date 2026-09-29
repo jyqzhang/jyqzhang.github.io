@@ -18,4 +18,4 @@ footer{display:block;background:transparent;color:#566173;border:0;padding:30px 
 .hero-words:before{content:none}.collective-word{font-size:clamp(30px,4.5vw,62px);letter-spacing:-.045em;top:45px;left:5%;max-width:90%;line-height:1.15}@media(max-width:700px){.collective-word{font-size:clamp(26px,6vw,40px);top:35px;left:5%}}
 
 /* Give community back links breathing room below the banner rule. */
-body[data-section=community] .section-motif + .text-link{margin-top:24px}
+body[data-section=community] .section-motif + .text-link{margin-top:48px}
