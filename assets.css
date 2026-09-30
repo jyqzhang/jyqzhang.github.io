@@ -136,18 +136,17 @@ body[data-section=playground] .page-title{color:#111!important}
 .brand:hover .brand-constellation .pixel{transform:translateY(-3px)}
 @media(prefers-reduced-motion:reduce){.brand-constellation .pixel{transition:none}.brand:hover .brand-constellation .pixel{transform:none}}
 
-/* Media landing masthead: layered print fragments and drafting lines. */
-.media-masthead{position:relative;isolation:isolate;overflow:hidden;margin:0 0 56px;min-height:260px;display:flex;align-items:center;background:#eef2f6;border-bottom:1px solid #aebdcd}
-body[data-section=media] .media-masthead .page-title{position:relative;z-index:1;font-size:clamp(80px,12.5vw,176px);line-height:1;margin:0;padding:30px 4% 42px;border:0;letter-spacing:-.075em}
-.media-art{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#f4f5f6 8%,#f4f5f6e8 35%,transparent 72%),repeating-linear-gradient(90deg,transparent 0 59px,#2449700d 59px 60px),repeating-linear-gradient(0deg,transparent 0 39px,#2449700b 39px 40px)}
-.media-art svg{position:absolute;width:100%;height:100%;color:#416b92;opacity:.5}
-.media-fragment{position:absolute;display:block;background:linear-gradient(145deg,#2664d6,#8dd9ed 60%,#e0eef5);mix-blend-mode:multiply}
-.media-masthead .fragment-one{clip-path:polygon(8% 0,100% 20%,92% 100%,0 80%);transform:none;width:29%;height:70%;right:8%;top:15%;opacity:.55}
-.fragment-two{width:18%;height:33%;right:0;bottom:7%;background:repeating-linear-gradient(0deg,#76bdd9 0 3px,transparent 3px 7px);transform:skewY(-8deg);opacity:.6}
-.media-scan{position:absolute;right:39%;top:0;width:7%;height:100%;background:repeating-linear-gradient(0deg,#23467222 0 1px,transparent 1px 4px);transform:skewX(-8deg)}
-.media-cross{position:absolute;right:7%;top:13%;font:28px monospace;color:#214cb3}
-
-@media(max-width:700px){.media-masthead{min-height:190px;margin-bottom:36px}body[data-section=media] .media-masthead .page-title{font-size:clamp(76px,19vw,110px);padding:32px 4% 44px}.media-masthead .fragment-one{right:4%;width:37%;opacity:.35}.media-scan{right:46%;width:8%}.media-art svg{opacity:.3}.media-cross{font-size:20px}}
+/* Media landing masthead: editorial paper collage. */
+.media-masthead{position:relative;isolation:isolate;overflow:hidden;margin:0 0 56px;min-height:285px;display:flex;align-items:center;background:#f4f5f6;border-bottom:1px solid #aebdcd}
+body[data-section=media] .media-masthead .page-title{position:relative;z-index:2;font-size:clamp(80px,12.5vw,176px);line-height:1;margin:0;padding:30px 4% 42px;border:0;letter-spacing:-.075em}
+.media-art{position:absolute;inset:24px 4% 24px 50%;pointer-events:none}
+.media-art span{position:absolute;display:block}
+.media-collage-image{width:55%;height:72%;left:10%;top:6%;transform:rotate(-7deg);background:linear-gradient(153deg,#b1dff1 0 35%,#e9f0f1 35% 39%,#438cb5 39% 45%,#c0d6df 45% 49%,#f8faf8 49% 62%,#38627b 62% 66%,#bfd6e4 66%);filter:saturate(.65)}
+.media-collage-paper{width:39%;height:31%;right:7%;top:10%;background:#f4f5f6;border:1px solid #6c88a754;transform:rotate(7deg)}
+.media-collage-stripes{right:3%;top:43%;width:56%;height:42%;background:repeating-linear-gradient(0deg,#2559d5 0 1px,transparent 1px 5px);opacity:.8;transform:rotate(7deg)}
+.media-collage-dots{left:4%;bottom:0;width:45%;height:35%;background:radial-gradient(#172a4c .7px,transparent 1px) 0 0/5px 5px;opacity:.3}
+.media-collage-line{right:20%;top:0;bottom:0;width:1px;background:#6c88a78c;z-index:1}
+@media(max-width:700px){.media-masthead{min-height:220px;margin-bottom:36px}body[data-section=media] .media-masthead .page-title{font-size:clamp(76px,19vw,110px);padding:32px 4% 44px}.media-art{inset:24px 4% 24px 52%;opacity:.65}}
 
 /* Use real grid cells so tilted cards cannot fragment across columns. */
 .cards-collage .asset-gallery{display:grid;columns:auto;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,auto);grid-auto-flow:column;gap:35px 30px;padding:20px 12px 30px;align-items:start}
