@@ -145,7 +145,7 @@ body[data-section=media] .media-masthead .page-title{position:relative;z-index:2
 .media-collage-paper{width:39%;height:31%;right:7%;top:10%;background:#f4f5f6;border:1px solid #6c88a754;transform:rotate(7deg)}
 .media-collage-stripes{right:3%;top:43%;width:56%;height:42%;background:repeating-linear-gradient(0deg,#2559d5 0 1px,transparent 1px 5px);opacity:.8;transform:rotate(7deg)}
 .media-collage-dots{left:4%;bottom:0;width:45%;height:35%;background:radial-gradient(#172a4c .7px,transparent 1px) 0 0/5px 5px;opacity:.3}
-.media-collage-line{right:20%;top:0;bottom:0;width:1px;background:#6c88a78c;z-index:1}
+.media-collage-line{position:absolute;right:15%;top:0;width:7%;height:100%;overflow:visible;color:#6c88a78c;z-index:1}
 @media(max-width:700px){.media-masthead{min-height:220px;margin-bottom:36px}body[data-section=media] .media-masthead .page-title{font-size:clamp(76px,19vw,110px);padding:32px 4% 44px}.media-art{inset:24px 4% 24px 52%;opacity:.65}}
 
 /* Use real grid cells so tilted cards cannot fragment across columns. */
