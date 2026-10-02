@@ -21,3 +21,5 @@
 .werewolf-essay-body p{font-size:16px;line-height:1.95;margin:0 0 26px;color:#444b43}
 .werewolf-essay-body p:first-child{font-size:23px;line-height:1.65;color:#252e27}
 @media(max-width:600px){.werewolf-summary{font-size:16px}.night-letters-feature{grid-template-columns:1fr;padding:25px;gap:8px}.night-letters-moon{font-size:44px}.night-letters-feature strong{font-size:24px}.werewolf-essay-heading{align-items:start;flex-direction:column;gap:16px}.werewolf-essay-heading h3{font-size:26px}.werewolf-essay-body p{font-size:15px}.werewolf-essay-body p:first-child{font-size:21px}.night-letters-cta small{display:block;margin:8px 0 0}}
+
+@media(min-width:1200px){.werewolf-story-modal .modal-content{max-width:none;padding-left:5%;padding-right:5%}.werewolf-story-modal .modal-content>h2{max-width:none;font-size:clamp(48px,4.5vw,76px);white-space:nowrap}.werewolf-summary{max-width:none;font-size:clamp(12px,.98vw,17px);white-space:nowrap}.night-letters-feature,.werewolf-essay{max-width:1120px}}

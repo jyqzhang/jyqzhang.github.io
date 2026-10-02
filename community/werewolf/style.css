@@ -31,3 +31,5 @@ body::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none
 @media(max-width:700px){.quote-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 10px}.quote-card{padding:15px 12px;min-height:135px}.quote-card blockquote{font-size:11px;line-height:1.9}.bookend-title{letter-spacing:0}.voices-heading{align-items:start}.voices-heading>span{font-size:9px;padding-top:27px}}
 
 .archive-count{flex-direction:column;align-items:center;gap:4px;flex-shrink:0}.archive-count strong{line-height:1.1}.archive-count span{writing-mode:horizontal-tb;white-space:nowrap;line-height:26px}.intro-bottom{align-items:flex-end}@media(max-width:700px){.archive-count span{letter-spacing:0;line-height:22px}}
+
+.intro em,.archive-count span{font-family:Arial,"PingFang SC",sans-serif;font-size:13px;font-weight:400;font-style:normal;line-height:2;letter-spacing:normal;color:#dedace}@media(max-width:700px){.intro em,.archive-count span{font-size:11px}.intro-bottom{gap:12px}}

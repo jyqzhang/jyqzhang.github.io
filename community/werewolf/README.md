@@ -2,7 +2,7 @@
 
 Community subsection: `/community/werewolf/`. Standalone HTML/CSS/JS; no build step.
 
-42 supplied responses are anonymized and manually tagged. One identifying description is generalized; punctuation is lightly edited. Topic counts count responses, not word occurrences. Edges connect topics occurring together in at least two responses. Incoming letters are tagged with simple keyword rules, not AI semantic analysis.
+42 supplied responses are anonymized and manually tagged. One identifying description is generalized. The quotes are lightly edited for clarity, English expressions are translated into Chinese, and unsuitable slang and repeated laughter are removed while preserving the original meaning. Topic counts count responses, not word occurrences. Edges connect topics occurring together in at least two responses. Incoming letters are tagged with simple keyword rules, not AI semantic analysis.
 
 ## Shared mailbox setup
 
