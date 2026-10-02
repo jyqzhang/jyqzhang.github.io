@@ -14,15 +14,14 @@ if (werewolfTrigger) {
   dialog.setAttribute('aria-labelledby', 'werewolf-story-title');
   dialog.innerHTML = `<div class="modal-toolbar"><span>Community / Werewolf</span><button type="button" class="modal-close" aria-label="Close Werewolf story">Close ×</button></div>
     <div class="modal-content">
-      <p class="meta">BRINGING PEOPLE TOGETHER, ONE FRIDAY AT A TIME</p>
-      <h2 id="werewolf-story-title">More than a game.</h2>
-      <p class="werewolf-summary">A Werewolf community I built around UCLA and Los Angeles—connecting students, friends, and newcomers through a shared love of social deduction, conversation, and Friday nights around a table.</p>
+      <h2 id="werewolf-story-title">Werewolf is more than a game.</h2>
+      <p class="werewolf-summary">It's a community, one that I personally built around UCLA and LA through a shared love of social deduction, conversation, and Friday nights around a table.</p>
       <a class="night-letters-feature" href="/community/werewolf/" target="_blank" rel="noopener noreferrer">
         <span class="night-letters-moon" aria-hidden="true">☾</span>
-        <span><span class="meta">AN INTERACTIVE COMMUNITY PORTRAIT</span><strong>天黑，请说心里话。</strong><span class="night-letters-description">Why do we keep coming back? Explore 42 anonymous voices through an interactive word cloud—connecting logic, friendship, and the reasons we play.</span><span class="night-letters-cta">Explore The Night Letters ↗ <small>Opens in a new tab</small></span></span>
+        <span><span class="meta">AN INTERACTIVE COMMUNITY PORTRAIT</span><strong>天黑，请说心里话。</strong><span class="night-letters-description">Why do we keep coming back? Explore 42 anonymous voices through an interactive word cloud—connecting logic, friendship, and the reasons we play.</span><span class="night-letters-cta">Explore The Night Letters ↗</span></span>
       </a>
       <article class="werewolf-essay" aria-labelledby="werewolf-essay-title">
-        <div class="werewolf-essay-heading"><div><p class="meta">A PERSONAL REFLECTION · JULIA ZHANG</p><h3 id="werewolf-essay-title">From 10/12 to a community.</h3></div><a class="text-link" href="https://www.linkedin.com/feed/update/urn:li:activity:7507200473402122240/" target="_blank" rel="noopener noreferrer">Read on LinkedIn ↗</a></div>
+        <div class="werewolf-essay-heading"><div><h3 id="werewolf-essay-title">My Story</h3></div><a class="text-link" href="https://www.linkedin.com/feed/update/urn:li:activity:7507200473402122240/" target="_blank" rel="noopener noreferrer">Read on LinkedIn ↗</a></div>
         <p class="werewolf-source-note">Originally shared on LinkedIn. Numbers and time references reflect the original post.</p>
         <div class="werewolf-essay-body">${paragraphs.map(p => `<p>${escapeHTML(p)}</p>`).join('')}</div>
       </article>

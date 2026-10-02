@@ -44,27 +44,18 @@ const entries = [
 ['我喜欢狼人杀是因为说话的时间很有存在感，14 个人安安静静地、认认真真地听你说话，哈哈哈哈很爽。','表达 被听见']
 ].map(([text,tags],i)=>({id:'archive-'+i,text,tags:tags.split(' '),number:i+1}));
 const topics=[['逻辑',41,41,78,'#bd6157'],['社交',61,54,87,'#e5dfce'],['推理',62,29,48,'#bdb79e'],['朋友',36,67,47,'#c4c5ad'],['博弈',22,46,32,'#969f8c'],['表达',76,42,30,'#aba695'],['谎言',53,76,33,'#a8675b'],['未知',42,18,29,'#8e9e93'],['观察',77,64,28,'#aab99f'],['放松',23,28,26,'#a4a99b'],['成就感',64,88,23,'#a7a18a'],['辩论',23,76,24,'#b78f7d'],['信任',57,12,21,'#949d89'],['身份',84,81,21,'#8a9284'],['热闹',16,61,23,'#929a89'],['陪伴',47,92,18,'#a2a48a'],['团队',83,51,21,'#999580'],['被听见',65,68,19,'#b3a389']];
-const $=id=>document.getElementById(id);let selected=null,viewMode="all",letterIndex=0,shared=[];
+const $=id=>document.getElementById(id);let selected=null,shared=[];
 const config=window.NIGHT_POST_CONFIG||{};
 const connected=Boolean(config.url&&config.key);
 const all=()=>[...shared,...entries];
 const relatedCount=(a,b)=>all().filter(q=>q.tags.includes(a)&&q.tags.includes(b)).length;
-function choose(tag){selected=tag;letterIndex=0;render();}
+function choose(tag){selected=tag;render();}
 function renderCloud(){const cloud=$('cloud');cloud.querySelectorAll('.word').forEach(n=>n.remove());const svg=cloud.querySelector('svg');svg.replaceChildren();
  for(let i=0;i<topics.length;i++)for(let j=i+1;j<topics.length;j++){const a=topics[i],b=topics[j],n=relatedCount(a[0],b[0]);if(n<2)continue;const line=document.createElementNS('http://www.w3.org/2000/svg','line');[['x1',a[1]*10],['y1',a[2]*6],['x2',b[1]*10],['y2',b[2]*6]].forEach(([k,v])=>line.setAttribute(k,v));if(selected&&(a[0]===selected||b[0]===selected))line.classList.add('active');svg.append(line);}
  topics.forEach(([tag,x,y,size,color],i)=>{const button=document.createElement('button');button.type='button';button.className='word'+(i<2?' hero':'')+(selected===tag?' selected':'')+(selected&&selected!==tag&&!relatedCount(selected,tag)?' dim':'');button.style.cssText=`left:${x}%;top:${y}%;font-size:clamp(${size*.46}px,${size/12}vw,${size}px);color:${color}`;const count=all().filter(q=>q.tags.includes(tag)).length;button.append(document.createTextNode(tag));const small=document.createElement('small');small.textContent=count;button.append(small);button.setAttribute('aria-label',`${tag}，${count}份心事`);button.setAttribute('aria-pressed',String(selected===tag));button.onclick=()=>choose(selected===tag?null:tag);cloud.append(button);});}
 function render(){renderCloud();$('total').textContent=all().length;const matches=all().filter(q=>!selected||q.tags.includes(selected));$('voice-title').textContent=selected?`「${selected}」里，藏着这些心事。`:'每个身份背后，都是一个人。';$('result-count').textContent=`${matches.length} 封匿名来信`;$('related').replaceChildren();if(selected){$('related').append('同频关键词：');topics.map(([tag])=>[tag,relatedCount(selected,tag)]).filter(([tag,n])=>tag!==selected&&n>0).sort((a,b)=>b[1]-a[1]).slice(0,5).forEach(([tag,n])=>{const b=document.createElement('button');b.textContent=`${tag} · ${n}`;b.onclick=()=>choose(tag);$('related').append(b);});}
- letterIndex=Math.min(letterIndex,Math.max(0,matches.length-1));
- $('show-all').setAttribute('aria-pressed',String(viewMode==='all'));
- $('show-one').setAttribute('aria-pressed',String(viewMode==='one'));
- $('letter-navigation').hidden=viewMode!=='one';
- $('letter-position').textContent=matches.length?`${letterIndex+1} / ${matches.length}`:'0 / 0';
- $('previous-letter').disabled=letterIndex===0;
- $('next-letter').disabled=letterIndex>=matches.length-1;
- $('quote-grid').classList.toggle('single-letter',viewMode==='one');
  $('quote-grid').replaceChildren();
- const visible=viewMode==='all'?matches:matches.slice(letterIndex,letterIndex+1);
- visible.forEach(q=>{
+ matches.forEach(q=>{
    const card=document.createElement('article');card.className='quote-card';
    const meta=document.createElement('div');meta.className='quote-meta';
    meta.textContent=String(q.number||entries.length+shared.length-shared.indexOf(q)).padStart(3,'0');
@@ -73,10 +64,6 @@ function render(){renderCloud();$('total').textContent=all().length;const matche
  });
 }
 $('reset').onclick=()=>choose(null);
-$('show-all').onclick=()=>{viewMode='all';render();};
-$('show-one').onclick=()=>{viewMode='one';render();};
-$('previous-letter').onclick=()=>{letterIndex=Math.max(0,letterIndex-1);render();};
-$('next-letter').onclick=()=>{letterIndex++;render();};
 const draftKey='night-letters-draft';try{$('letter').value=localStorage.getItem(draftKey)||'';}catch{}
 function updateDraft(){$('char-count').textContent=`${$('letter').value.length} / 500`;try{localStorage.setItem(draftKey,$('letter').value);}catch{}}$('letter').addEventListener('input',updateDraft);updateDraft();
 function classify(text){const rules={'逻辑':/逻辑|脑力|动脑/,'社交':/社交|交友|认识|破冰|social|互动/,'推理':/推理|找狼|真相|猜/,'朋友':/朋友|同学/,'博弈':/博弈|策略|对抗|斗智/,'表达':/表达|沟通|发言|说话|语言|中文/,'谎言':/骗|谎|说谎/,'未知':/未知|刺激|unknown|紧张/,'观察':/观察|反应|性格|细节/,'放松':/放松|放飞|换换脑子|解压/,'成就感':/成就|翻盘|胜利/,'辩论':/辩论|吵架|argue|诡辩/,'信任':/信任|说服/,'身份':/身份|扮演|预言家/,'热闹':/热闹|欢乐|梗|节目|笑|操作/,'陪伴':/陪伴|一起|电子产品/,'团队':/团队|阵营|带队/,'被听见':/听我|存在感|听你/};return Object.entries(rules).filter(([,re])=>re.test(text)).map(([t])=>t);}
