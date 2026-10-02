@@ -12,3 +12,8 @@ html{scroll-padding-top:80px}.concept{--line:#454544;--muted:#9a9a96;--paper:#ed
 .concept .lunar-disc::after{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.055' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Cpath filter='url(%23n)' opacity='.8' d='M0 0h180v180H0z'/%3E%3C/svg%3E");background-size:cover;mix-blend-mode:multiply}
 .zine .quote-card:nth-child(6n+4) blockquote{font-size:12px;line-height:1.95;font-weight:400}.zine .quote-card.short-quote blockquote{font-size:22px;font-weight:600;line-height:1.7}.theatre .quote-card:nth-child(9n) blockquote{font-size:13px;line-height:2}.theatre .quote-card.short-quote blockquote{font-size:23px;line-height:1.7}@media(max-width:760px){.zine .quote-card.short-quote blockquote,.theatre .quote-card.short-quote blockquote{font-size:17px}.theatre .quote-card:nth-child(9n) blockquote{font-size:12px}}
 @media(max-width:760px){.archive .title-first,.archive .title-second{display:block}.archive .title-second{font-size:29px;white-space:nowrap}.archive .bookend-title{line-height:1.55}}
+/* Keep Chinese endings intact without shrinking the small body text. */
+.concept .quote-card blockquote{text-wrap:pretty;word-break:normal;overflow-wrap:normal}
+.concept .quote-card.short-quote blockquote{text-wrap:balance}
+.quote-ending{white-space:nowrap}
+.zine .intro>.bookend-title{margin-top:10px}
