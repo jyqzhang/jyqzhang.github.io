@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1100" viewBox="0 0 900 1100">
+<defs><pattern id="dots" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".6" fill="#c6c1ad" opacity=".3"/></pattern><filter id="grain"><feTurbulence baseFrequency=".68" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter></defs>
+<path d="m-35 120 210-20-35 290-180-35zM785 685l140-40 25 330-170 10z" fill="url(#dots)"/>
+<g fill="none" stroke="#aca58a" stroke-width=".65" opacity=".3"><circle cx="70" cy="675" r="175"/><circle cx="70" cy="675" r="166" stroke-dasharray="1 8"/><ellipse cx="70" cy="675" rx="220" ry="75" transform="rotate(-40 70 675)"/><path d="M-20 675h285M70 465v420M655-60l65 220 109 42-88 185 190 97M720 160l-93 97 114 90M-20 995l204-45 45 143M184 950l138 59 30 110"/><circle cx="720" cy="160" r="5"/><circle cx="829" cy="202" r="3"/><circle cx="741" cy="347" r="5"/><circle cx="184" cy="950" r="4"/></g>
+<g fill="#b9b298" opacity=".28" font-family="monospace" font-size="9" letter-spacing="3"><text x="645" y="290" transform="rotate(90 645 290)">THE NIGHT HAS A THOUSAND VOICES</text><text x="28" y="923" transform="rotate(-8 28 923)">FIELD NOTES / AFTER DARK</text><text x="730" y="780">01 — ☾ — 42</text></g>
+<g stroke="#c5bca0" fill="none" opacity=".36"><path d="M290 90v18m-9-9h18M865 548v20m-10-10h20M480 925v14m-7-7h14M35 410v12m-6-6h12"/><path d="m812 1010 4 12 12 4-12 4-4 12-4-12-12-4 12-4z"/></g>
+<rect width="900" height="1100" filter="url(#grain)" opacity=".09"/>
+</svg>
