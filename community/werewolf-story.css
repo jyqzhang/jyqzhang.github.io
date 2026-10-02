@@ -1,0 +1,23 @@
+.werewolf-community-trigger{border:0;padding:0;background:none;color:inherit;text-align:left;font:inherit;cursor:pointer;width:100%}
+.werewolf-community-trigger h2{display:flex;justify-content:space-between;font-size:24px;font-weight:400;margin:20px 0 9px}
+.werewolf-community-trigger:focus-visible{outline:2px solid #254fab;outline-offset:7px}
+.werewolf-story-modal .modal-content{max-width:1120px;margin:auto}
+.werewolf-story-modal .modal-content>h2{margin:18px 0 24px}
+.werewolf-summary{max-width:720px;font-size:18px;line-height:1.8;color:#555c56;margin-bottom:36px}
+.night-letters-feature{display:grid;grid-template-columns:90px 1fr;gap:26px;padding:34px 38px;background:#191c18 url('/community/werewolf/texture.svg') center/700px;color:#e0dac8;text-decoration:none;border:1px solid #4d5143}
+.night-letters-moon{font:76px Georgia,serif;color:#b8ae91;align-self:center}
+.night-letters-feature .meta{color:#b4b09e;font-size:10px;letter-spacing:1.6px}
+.night-letters-feature strong{display:block;font-family:Georgia,'Songti SC',serif;font-size:30px;font-weight:400;letter-spacing:2px;margin:13px 0}
+.night-letters-description{display:block;font-size:14px;line-height:1.8;max-width:650px;color:#c0bda9}
+.night-letters-cta{display:block;font-size:13px;margin-top:20px;color:#e5c2b4}
+.night-letters-cta small{display:inline-block;margin-left:12px;font-size:10px;color:#a6a792}
+.night-letters-feature:hover{border-color:#a99c79}
+.werewolf-essay{margin-top:58px;border-top:1px solid var(--line);padding-top:34px}
+.werewolf-essay-heading{display:flex;justify-content:space-between;align-items:end;gap:24px}
+.werewolf-essay-heading h3{font-size:30px;font-weight:400;letter-spacing:-.025em;margin:12px 0 0}
+.werewolf-essay-heading>a{white-space:nowrap;font-size:13px}
+.werewolf-source-note{font-size:11px;line-height:1.7;color:#777d75;margin:17px 0 32px}
+.werewolf-essay-body{max-width:740px}
+.werewolf-essay-body p{font-size:16px;line-height:1.95;margin:0 0 26px;color:#444b43}
+.werewolf-essay-body p:first-child{font-size:23px;line-height:1.65;color:#252e27}
+@media(max-width:600px){.werewolf-summary{font-size:16px}.night-letters-feature{grid-template-columns:1fr;padding:25px;gap:8px}.night-letters-moon{font-size:44px}.night-letters-feature strong{font-size:24px}.werewolf-essay-heading{align-items:start;flex-direction:column;gap:16px}.werewolf-essay-heading h3{font-size:26px}.werewolf-essay-body p{font-size:15px}.werewolf-essay-body p:first-child{font-size:21px}.night-letters-cta small{display:block;margin:8px 0 0}}
