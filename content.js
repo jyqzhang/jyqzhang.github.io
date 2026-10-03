@@ -16,7 +16,7 @@ communities.ucla.push({"slug": "miscellaneous-student-life", "title": "Miscellan
   journey.dates = 'January 2020 - July 2025';
   delete journey.logo;
   const originalPhotos = journey.galleries.flatMap(g => g.items);
-  journey.journeyAwards = ["Team Canada Representative, The Matsuda 9th World Students Pair Go Championship", "Team Canada Representative, 33rd International Amateur Pair Go Championship", "3x National Champion & 1x 3rd Place, Canadian Go Open Pair Go", "3rd Place, North American Youth Open Division A", "2nd Place, American Go Association U16 Girls Cup", "3rd Place, New York Youth Open Division A", "1st Place & Pair Go Table Winners, E-Go Congress 3Dan Group", "5th Place & 1 of 3 Team Canada Representatives, 1st CCTV World Youth Amateur Online Weiqi Tournament", "Gold and Ace Award, Canwa Cup", "Canadian Go Association Distinguished Organizer Award"].map((title, i) => ({
+  journey.journeyAwards = ["Team Canada Representative, The Matsuda 9th World Students Pair Go Championship", "Team Canada Representative, 33rd International Amateur Pair Go Championship", "3x National Champion & 1x 3rd Place, Canadian Go Open Pair Go", "3rd Place, North American Youth Open Division A", "2nd Place, American Go Association U16 Girls Cup", "3rd Place, New York Youth Open Division A", "1st Place & Pair Go Table Winners, E-Go Congress 3Dan Group", "5th Place & 1 of 3 Team Canada Representatives, 1st CCTV World Youth Amateur Online Weiqi Tournament", "Gold and Ace Award, Canwa Cup"].map((title, i) => ({
     title,
     photos: i === 0 ? originalPhotos.filter(a => a.caption.includes('Matsuda'))
       : i === 1 ? originalPhotos.filter(a => a.caption.includes('33rd International')) : []
