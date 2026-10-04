@@ -18,7 +18,7 @@ if (werewolfTrigger) {
       <p class="werewolf-summary">A community I built around UCLA and LA through a shared love of social deduction, conversation, and Friday nights around a table.</p>
       <a class="night-letters-feature" href="/community/werewolf/" target="_blank" rel="noopener noreferrer">
         <span class="night-letters-moon" aria-hidden="true">☾</span>
-        <span><strong class="night-letters-headline">Explore 80 anonymous voices through an interactive word cloud (in Chinese) — connecting logic, friendship, and the reasons we play.</strong><span class="night-letters-description">天黑，请说心里话。</span><span class="night-letters-cta">↗</span></span>
+        <span><strong class="night-letters-headline"><span class="night-title-line">Explore 80 anonymous voices through an interactive word cloud (in Chinese) —</span><span class="night-title-line">connecting logic, friendship, and the reasons we&nbsp;play.</span></strong><span class="night-letters-description">天黑，请说心里话。</span><span class="night-letters-cta">↗</span></span>
       </a>
       <article class="werewolf-essay" aria-labelledby="werewolf-essay-title">
         <div class="werewolf-essay-heading"><div><h3 id="werewolf-essay-title">My Story</h3></div><a class="text-link" href="https://www.linkedin.com/feed/update/urn:li:activity:7507200473402122240/" target="_blank" rel="noopener noreferrer">Read on LinkedIn ↗</a></div>
