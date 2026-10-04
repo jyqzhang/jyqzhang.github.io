@@ -14,11 +14,11 @@ if (werewolfTrigger) {
   dialog.setAttribute('aria-labelledby', 'werewolf-story-title');
   dialog.innerHTML = `<div class="modal-toolbar"><span>Community / Werewolf</span><button type="button" class="modal-close" aria-label="Close Werewolf story">Close ×</button></div>
     <div class="modal-content">
-      <h2 id="werewolf-story-title">Werewolf is more than a game.</h2>
-      <p class="werewolf-summary">It's a <strong>community</strong>, one that I personally built around UCLA and LA through a shared love of social deduction, conversation, and Friday nights around a table.</p>
+      <h2 id="werewolf-story-title">Werewolf is <em>more than a game.</em> It's a <strong>community.</strong></h2>
+      <p class="werewolf-summary">A community I built around UCLA and LA through a shared love of social deduction, conversation, and Friday nights around a table.</p>
       <a class="night-letters-feature" href="/community/werewolf/" target="_blank" rel="noopener noreferrer">
         <span class="night-letters-moon" aria-hidden="true">☾</span>
-        <span><span class="meta">AN INTERACTIVE COMMUNITY PORTRAIT</span><strong>天黑，请说心里话。</strong><span class="night-letters-description">Why do we keep coming back? Explore 42 anonymous voices through an interactive word cloud—connecting logic, friendship, and the reasons we play.</span><span class="night-letters-cta">Explore The Night Letters ↗</span></span>
+        <span><strong>天黑，请说心里话。</strong><span class="night-letters-description">Explore 80 anonymous voices through an interactive word cloud—connecting logic, friendship, and the reasons we play.</span><span class="night-letters-cta">↗</span></span>
       </a>
       <article class="werewolf-essay" aria-labelledby="werewolf-essay-title">
         <div class="werewolf-essay-heading"><div><h3 id="werewolf-essay-title">My Story</h3></div><a class="text-link" href="https://www.linkedin.com/feed/update/urn:li:activity:7507200473402122240/" target="_blank" rel="noopener noreferrer">Read on LinkedIn ↗</a></div>
