@@ -19,3 +19,6 @@ html{scroll-padding-top:80px}.concept{--line:#454544;--muted:#9a9a96;--paper:#ed
 .zine .intro>.bookend-title{margin-top:10px}
 
 @media(max-width:760px){.zine .quote-card:nth-child(7n+3){padding:16px 12px}}
+
+/* Keep painted card edges inside their multicolumn fragments. */
+.zine .quote-grid .quote-card{transform:none;box-shadow:none;vertical-align:top}
